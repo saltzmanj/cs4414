@@ -1,0 +1,11 @@
+Q1: (C). Malloc should be cast
+
+Q2: (D). Adding to a pointer base address adds that value times the size of the data items
+
+Q3: (B)
+
+Q4: (D)
+
+Q5: (D)
+
+Q6: (D)
