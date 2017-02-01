@@ -8,12 +8,11 @@ int get_chars_from_stdin(char* targetbuf);
 
 int main() {
 	char* char_buffer = (char *) malloc(sizeof(char) * BUFSIZE); //Create a buffer for the input characters
-	int status;
+	int status = 0;
 
-	while(1) {
+	while(status != -1) {
 		status = get_chars_from_stdin(char_buffer);
-		if (status == -1) break;
-		printf("%d\n", status);
+		if(status!=-1) printf("%d\n", status);
 	}
 
 	free(char_buffer);
