@@ -1,6 +1,6 @@
 # Makefile for Homework 0
 
-CXXFLAGS = -std=c99 -g
+CXXFLAGS = -std=c99 -g -O
 CXX = gcc $(CXXFLAGS)
 OFILES = @echo *.o
 
@@ -13,6 +13,9 @@ MOD1DIR = module1
 
 TARGETMOD2 = module2bin
 MOD2DIR = module2
+
+TARGETMOD3 = module3bin
+MOD3DIR = module3
 
 .SUFFIXES: .o .c
 
@@ -27,6 +30,10 @@ mod1: $(MOD1DIR)/module1.c
 mod2: $(MOD2DIR)/module2.c
 	$(CXX) $(MOD2DIR)/module2.c -o $(TARGETMOD2)
 	@echo "Module2 - Word Selector - Compiled"
+
+mod3: $(MOD3DIR)/module3.c
+	$(CXX) $(MOD3DIR)/module3.c -o $(TARGETMOD3)
+	@echo "Module3 - Word Selector (Hard) - Compiled"
 
 clean:
 	-rm -f *.o $(TARGETMOD0) $(TARGETMOD1) $(TARGETMOD2)
