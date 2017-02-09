@@ -1,63 +1,59 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <ctype.h>
 
-#define STDINBUFSIZE 1024
-#define INDEXBUFSIZE 8
-#define SINGLEWORDBUFSIZE 32
+#define WORD_MULT 64
+#define CHAR_MULT 64
 
 int get_chars_from_stdin(char* targetbuf, int maxchars);
-int isnumber(char* nstr);
-void index_spaced_string(char* string, int index, char* outstr);
+int isnumber(char* nstr) ;
 
 int main() {
+	char** linearr = (char**) malloc(sizeof(char*) * WORD_MULT);
+	char* currentline = (char*) malloc(sizeof(char) * CHAR_MULT);
 
-	// Allocate space for the search string length (e.g. the first item to be inputted)
-	char* stringlength_input = (char*) malloc(sizeof(char) * INDEXBUFSIZE);
-	int stringlength;
+	int lsa = 0;
+	int i;
+	int realloc_count = 1;
+	int charct;
+ 	int cflag = 1;
+ 	
 
-	// Allocate space for the string id
-	char* stringindex_input = (char*) malloc(sizeof(char) * INDEXBUFSIZE);
-	int stringindex;
+ 	strcpy(currentline,"placeholder");
 
-	char* inputstring = (char*) malloc(sizeof(char) * STDINBUFSIZE);
-	char* resultant = (char*) malloc(sizeof(char) * SINGLEWORDBUFSIZE);
+	while(!isnumber(currentline)) {
 
-	get_chars_from_stdin(stringlength_input, INDEXBUFSIZE);
+		charct = get_chars_from_stdin(currentline, CHAR_MULT);
+		linearr[lsa] = (char*) malloc(sizeof(char*) * charct);
+		strcpy(linearr[lsa], currentline);
+		lsa += 1;
+
+		if (lsa >= WORD_MULT*realloc_count) {
+			realloc_count += 1;
+			linearr = (char**) realloc(linearr, sizeof(char*)*WORD_MULT*realloc_count);
+		}
+		if(lsa == 1 && cflag == 1) {
+			lsa -= 1;
+			cflag = 0;
+			strcpy(currentline,"placeholder");
+		}
+
+	}
+
+	printf("%s\n",linearr[atoi(currentline)]);
 	
-	if(isnumber(stringlength_input)) {
-		stringlength = strtol(stringlength_input, NULL, 10);
-	} else {
-		printf("%s\n", "I/O Error"); return -1;
+	// Free malloc'd memory
+	for(i = 0; i <= lsa; i++) {
+		free(linearr[lsa]);
 	}
 
-	get_chars_from_stdin(inputstring, STDINBUFSIZE);
-	get_chars_from_stdin(stringindex_input, INDEXBUFSIZE);
+	free(currentline);
+	free(linearr);
 
-	if(isnumber(stringindex_input)) {
-		stringindex = strtol(stringindex_input, NULL, 10);
-	} else {
-		printf("%s\n", "I/O Error"); return -1;
-	}
 
-	index_spaced_string(inputstring, stringindex, resultant);
-
-	printf("%s\n", resultant);
-
-	free(stringlength_input);
-	free(stringindex_input);
-	free(inputstring);
-	free(resultant);
-
+	return 0;
 }
-
-/* Get the character string from stdin. Takes maxchars argument to prevent buffer overflows
-
-	Returned status codes: 
-	-1: Error (string exceeds buffer)
-	0+: length of the string.
-*/
 
 int get_chars_from_stdin(char* targetbuf, int maxchars) {
 	char current_char; // Buffer space for last char from command line
@@ -66,7 +62,7 @@ int get_chars_from_stdin(char* targetbuf, int maxchars) {
 	while(strsize < maxchars){
 		current_char = fgetc(stdin);
 		
-		if (current_char == '\n') {
+		if (current_char == '\n') {	
 			*char_ptr = '\0';
 			break;
 		} else {
@@ -75,7 +71,7 @@ int get_chars_from_stdin(char* targetbuf, int maxchars) {
 			strsize += 1;
 		}
 
-		if(strsize == STDINBUFSIZE-1) {
+		if(strsize == maxchars-1) {
 			strsize = -1;
 			break;
 		};
@@ -100,49 +96,4 @@ int isnumber(char* nstr) {
 	}
 
 	return retval;
-}
-
-/*
-	Index a spaced-delimited string
-*/
-typedef enum {
-	Find,
-	Copy
-} scanstate_t;
-
-void index_spaced_string(char* string, int index, char* outstr) {
-	char* strptr = string;
-	char* outstrptr = outstr;
-	scanstate_t scanstate = Find;
-	int spacecount = 0;
-	int cflag = 1;
-
-	while(strptr != '\0' && cflag) {
-		switch(scanstate){
-		case Find: {
-
-			if (*strptr == ' ') {
-				spacecount += 1;
-			}
-
-			if (spacecount == index) {
-				scanstate = Copy;
-			}
-
-		break;}
-		case Copy: {
-			
-			if(*strptr == ' ' || *strptr == '\0') cflag = 0;
-
-			*outstrptr = *strptr;
-			outstrptr += sizeof(char);
-
-		break;}
-		}
-
-
-		strptr += sizeof(char);
-	}
-	*(outstrptr + sizeof(char)) = '\0';
-
 }

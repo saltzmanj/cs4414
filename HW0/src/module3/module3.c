@@ -3,27 +3,34 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#define MAXWORDS 64
-#define MAXCHARPERWORD 64
+#define WORD_MULT 64
+#define CHAR_MULT 64
 
 int get_chars_from_stdin(char* targetbuf, int maxchars);
 int isnumber(char* nstr) ;
 
 int main() {
-	char** linearr = (char**) malloc(sizeof(char*) * MAXWORDS);
-	char* currentline = (char*) malloc(sizeof(char) * MAXCHARPERWORD);
+	char** linearr = (char**) malloc(sizeof(char*) * WORD_MULT);
+	char* currentline = (char*) malloc(sizeof(char) * CHAR_MULT);
 
 	int lsa = 0;
 	int i;
+	int realloc_count = 1;
+	int charct;
 
-	*currentline = "placeholder";
+	strcpy(currentline,"placeholder");
 	
 	while(!isnumber(currentline)) {
 		
-		get_chars_from_stdin(currentline, MAXCHARPERWORD);
-		linearr[lsa] = (char*) malloc(sizeof(char*) * MAXCHARPERWORD);
+		charct = get_chars_from_stdin(currentline, CHAR_MULT);
+		linearr[lsa] = (char*) malloc(sizeof(char*) * charct);
 		strcpy(linearr[lsa], currentline);
 		lsa += 1;
+
+		if (lsa >= WORD_MULT*realloc_count) {
+			realloc_count += 1;
+			linearr = realloc(linearr, sizeof(char*)*WORD_MULT*realloc_count);
+		}
 
 	}
 
@@ -48,7 +55,7 @@ int get_chars_from_stdin(char* targetbuf, int maxchars) {
 	while(strsize < maxchars){
 		current_char = fgetc(stdin);
 		
-		if (current_char == '\n') {`	
+		if (current_char == '\n') {	
 			*char_ptr = '\0';
 			break;
 		} else {
