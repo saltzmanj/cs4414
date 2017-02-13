@@ -3,57 +3,41 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#define WORD_MULT 64
-#define CHAR_MULT 64
+#define NUM_BUF_SIZE 		64
+#define WORD_BUF_SIZE 		1024
 
 int get_chars_from_stdin(char* targetbuf, int maxchars);
 int isnumber(char* nstr) ;
 
+
 int main() {
-	char** linearr = (char**) malloc(sizeof(char*) * WORD_MULT);
-	char* currentline = (char*) malloc(sizeof(char) * CHAR_MULT);
-
-	int lsa = 0;
+	char* numbuf = (char*) malloc(sizeof(char)*NUM_BUF_SIZE);
+	char* linebuf = (char*) malloc(sizeof(char)*WORD_BUF_SIZE);
+	char* wordbuf = (char*) malloc(sizeof(char)*WORD_BUF_SIZE);
+	int linenum;
+	int wordnum;
+	char *itertok;
 	int i;
-	int realloc_count = 1;
-	int charct;
- 	int cflag = 1;
- 	
 
- 	strcpy(currentline,"placeholder");
+	get_chars_from_stdin(numbuf, NUM_BUF_SIZE);
+	linenum = atoi(numbuf);
+	get_chars_from_stdin(linebuf, WORD_BUF_SIZE);
+	get_chars_from_stdin(wordbuf, NUM_BUF_SIZE);
+	wordnum = atoi(wordbuf);
 
-	while(!isnumber(currentline)) {
+	i = 0;
+	itertok = strtok(linebuf, " ");
 
-		charct = get_chars_from_stdin(currentline, CHAR_MULT);
-		linearr[lsa] = (char*) malloc(sizeof(char*) * charct);
-		strcpy(linearr[lsa], currentline);
-		lsa += 1;
-
-		if (lsa >= WORD_MULT*realloc_count) {
-			realloc_count += 1;
-			linearr = (char**) realloc(linearr, sizeof(char*)*WORD_MULT*realloc_count);
-		}
-		if(lsa == 1 && cflag == 1) {
-			lsa -= 1;
-			cflag = 0;
-			strcpy(currentline,"placeholder");
-		}
-
+	while(itertok != NULL && i <= wordnum) {
+		itertok = strtok(NULL, " ");
+		i += 1;
 	}
 
-	printf("%s\n",linearr[atoi(currentline)]);
+	printf("%s\n",itertok);
 	
-	// Free malloc'd memory
-	for(i = 0; i <= lsa; i++) {
-		free(linearr[lsa]);
-	}
-
-	free(currentline);
-	free(linearr);
 
 
-	return 0;
-}
+}	
 
 int get_chars_from_stdin(char* targetbuf, int maxchars) {
 	char current_char; // Buffer space for last char from command line
