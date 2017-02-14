@@ -17,3 +17,7 @@ jsh: $(CMDSRCDIR)/main.o $(CMDSRCDIR)/jsh.o
 clean:
 	-rm -f $(CMDSRCDIR)/*.o $(TARGETBIN)
 	@echo "JSH Cleaned"
+
+cleano:
+	-rm -f $(CMDSRCDIR)/*.o
+	@echo 'JSH - Ofiles Cleaned'
