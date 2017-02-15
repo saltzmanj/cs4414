@@ -3,7 +3,7 @@
 #include "jsh.h"
 
 int main() {
-	error_t shellstatus = INIT_STATUS;
+	msg_t shellstatus = INIT_STATUS;
 	InitJsh();
 	
 	while(shellstatus.xflag != 1) {
