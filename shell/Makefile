@@ -7,7 +7,7 @@ CXX = gcc
 OFILES = @echo *.o
 
 CMDSRCDIR = src
-TARGETBIN = jsh.bin
+TARGETBIN = jsh
 
 jsh: $(CMDSRCDIR)/main.o $(CMDSRCDIR)/jsh.o
 	$(CXX) $(CXXFLAGS) $(CMDSRCDIR)/main.c $(CMDSRCDIR)/jsh.c -o $(TARGETBIN)
