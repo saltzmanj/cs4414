@@ -10,6 +10,23 @@ Chapter 1&2: Computer Systems
 			-OS
 			-Applications
 			-Kernel
+	- Operating System Functionality
+		- Services that help the user
+			1. User Interface
+				- Can be CLI, GUI, or both
+			2. Program Execution
+				- Can load program into memory
+				- Process can exit normally or abnormally
+			3. I/O Operations
+			4. File system manipulations
+			5. Communications
+				- Communications between processes, either on same machine or remote machines
+			6. Error detection and correction
+		- Services that assist the operation of the system
+			1. Resource allocation to different jobs
+			2. Accounting
+			3. Protection and security
+
 	- Kernel Contains software for:
 		- File Systems
 		- CPU Scheduling
@@ -37,6 +54,37 @@ Chapter 1&2: Computer Systems
 				- Many functions run in user mode
 				- If Kernel compromised, patches are easy
 				- Message passing required for interprocess communications
+	- System Calls
+		1) Process control calls
+			- Processes should determine their own lifespans
+				- Acheived via exit(), abort()
+			- load(), fork(), join(), etc
+		2) File Manipulations
+			- create(), open(), delete()
+			- We don't really want programs manipulating the file system too much
+		3) Device Management
+			- request(), release()
+			- similar rationale to files
+		4) Information Maintence
+			- time(), date()
+			- dump() for examining contents of memory
+		5) Communication
+			- get_pid()
+			- Processes that handle communication called daemons
+			- Two main models: shared memory and message passing
+				- Shared memory requires agreement from two processes to share memory regions
+		6) Protection
+			- get_permissions(), set_permissions(), allow_user(), deny_user()
+			- Specifies which users can and can't perform certain actions
+	- System Utilities
+		- Programs included in OS that facilitate actions: usually good alternative to direct system calls
+		- Types of utilities
+			- File management
+			- Status information
+			- File modification
+			- Programming language support (interpreters, compilers, etc)
+			- Communications
+			- Background services
 	- Process Communication
 		1) Signals: UNIX/Linux only
 		2) Shared Memory (producer/consumer)
