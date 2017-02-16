@@ -1,0 +1,200 @@
+CS4414: Test 1 Study Guide
+
+Chapter 1&2: Computer Systems
+	- Computer Systems defined as
+		- Hardware
+			-Memory
+			-CPU
+			-Disks
+		- Software
+			-OS
+			-Applications
+			-Kernel
+	- Kernel Contains software for:
+		- File Systems
+		- CPU Scheduling
+		- Process management
+	- Hardware can run in user or kernel mode
+		- User mode for executing instructions, allocation memory, etc
+		- Kernel mode used for accessing system resources: disk, network, etc
+	- Kernel Overview
+		- A layer of functions that can be invoked to access system resources
+		- Provides protection and simpicity
+		- Resources can be accessed in three ways:
+			1) System Calls
+				- System Calls: change mode bit from '0: user' to '1: kernel'
+				- Reverse mode bit change on exit
+					- Called context switch
+				- May or may not be directly callable from user programs
+					- Windows doesn't allow explicit system calls: must use Win32 API
+			2) Interrupts
+			3) Exceptions
+		- Kernels can be classified by size
+			- Monolithic = large
+				- Includes process management, memory management, security, etc
+				- Adopted by Unix, Linux, Windows
+			- Microkernel = small
+				- Many functions run in user mode
+				- If Kernel compromised, patches are easy
+				- Message passing required for interprocess communications
+	- Process Communication
+		1) Signals: UNIX/Linux only
+		2) Shared Memory (producer/consumer)
+		3) Message Passing
+	- Process Management
+		1) Process State
+		2) Data structures defining process
+		3) CPU scheduling
+		4) Process synchronization
+		5) Process deadlock handling
+		6) Process communication
+	- Memory Management
+		1) Allocation/deallocation of space
+		2) Keep track of allocated space
+		3) Virtual memory management
+	- File Management
+		1) File creation
+		2) File deletion
+		3) I/O
+		4) File manipulation
+		5) File/directory backup
+	- Mass Storage Management
+		1) Storage (de)allocation
+		2) Freee & allocated space on disk
+	- Protection and security
+		1) Access Control Model
+		2) Capability list
+		3) Cryptography
+		4) Access List
+	- Types of Operating Systems
+		- Batch Systems
+			- Simple
+			- OS Called a "monitor"
+			- relatively primitive
+			- Not efficient: time is wasted waiting on I/O especially
+				-CPU usage ~0%
+		- Interactive/Time Sharing
+		- Real-time Systems
+			- Used in embedded world
+			- Can handle strict deadlines
+				- Hard real-time: stricter deadlines than soft real-time
+		- Mobile OS
+			- May be optimized for power consumption, efficiency, etc
+
+Chapter 3: Processes
+
+- Process: a program in execution
+- Process Concepts
+	- Code in the .text section
+	- Includes: stack, heap, data (constants, etc), program activity
+- Processes are always in some kind of state: new, running, waiting, etc
+- Process Info stored in process control block (PCB), which includes:
+	- Process State
+	- Program Counter value of next instruction
+	- CPU registers including CCR (condition code registers)
+	- CPU scheduling info
+	- Memory management info
+	- Accounting Info (statistics incl utilization)
+		- can be used by scheduler
+	- I/O Status info
+- Processes can have multiple parallel threads
+- Process Scheduling
+	- 1 process can be running per core 
+		- Although some CPUs can emulate >1 core/core
+	- Job Queue: Contains all processes
+	- Ready queue: linked list of all processes
+	- Scheduler selects process from various queues
+		- Long-term scheduler: disk -> memory ~ seconds to minutes to hours
+		- Short-term: memory -> CPU ~ milliseconds
+			- Also called CPU queue
+		- Device queue: list of processes waiting for a particular resource
+	- Unix, Linux, Windows: no long-term scheduler
+- Process Operations
+	- Spawn new process via fork()
+	- Load a program via exec()
+	- Wait for completion via wait()
+- Process Control Block
+	- Contains:
+		1) PID: unique #
+		2) Pointer to parent process
+		3) Pointer to child process
+		4) Priority of process
+		5) Pointers to important memory locations
+		6) Register save areas
+		7) Processor the process is running on
+		8) List of open files
+		9) Program counter value
+		10) Current position of stack pointer
+		11) Current position of heap pointer
+		12) Statistics info
+	- On context switches:
+		1) PCB is saved for preempted process
+		2) Restored PCB for dispatch-to-be
+			- Done by scheduler and dispatcher
+- Process termination
+	(1) Passive
+		- exit()
+	(2) Active
+		- Process killed by kill(pid, SIGKILL)
+			- Sends a signal: process may choose to not respond!
+- Inter-Process Communication
+	- Several approaches
+		1) Shared Memory
+			- Both process have pointers to the same memory address
+			- Producer fills buffer, consumer reads it
+			- A number of problems:
+				- full buffer looks empty
+				- producer may produce too much data
+				- Requires pretty good synchronization
+		2) Message passing
+			- Sender calls send(message), receiver calls receive(message)
+			- Messages can be fixed or variable in size
+			- No shared memory required
+			- Communication link required between process
+			- Addressing presents some issues
+				- Hard-coding may be required for named processes
+				- Requires all sorts of synchronization
+			- Some implementations use a "mailbox" either owned by a process or the OS
+		3) Socket programming
+			- Socket defined as a set of unique addresses
+			- Programs can "listen" on a socket
+			- Messages "accepted"
+			- Client creates and connects to socket w/ server on other end
+		4) Remote Procedure Call
+			- Used for calling functions on remote machines
+				1) Process bundled (or "marshalled") into stub form
+				2) Stub send over TCP/IP to server
+				3) Function "unmarshalled" and run
+			- Can't do pass by reference (!) 
+		5) Pipes
+			- Pipe: asynchronous buffer
+				- can be uni or bi directional
+			- Implemented via files
+				- Advantages: can use abstractions like open(), close(), etc
+				- Disadvantage: slow relative to shared memory
+			- Two pipe types:
+				1) Named papes (a.k.a FIFO)
+					- Normally used by unrelated processes
+						-e.g. producer/consumer, reader/writer, etc
+				2) Unnamed Pipes(a.k.a anonymous pipes)
+					- Usually used by related procs
+						-e.g. parent/child
+					- This is the more familiar pipe
+			- Since they are files, pipes are described using file descriptors
+				-fd[0]: read end
+				-fd[1]: write end
+			- When writing, read end is closed by writer
+
+- Sample Questions
+
+1) Most Modern OSs support two modes (user and kernel mode) for resource protection. Describe how an application running in the user mode access a system resource.
+
+If an application wants to access a system resource, it must make a system call. This can happen by directly calling said system call, or calling a library function in which the system call is itself called (in fact, on Windows only the latter method is allowed). The system call begins by setting the mode bit to '1', which allows access to hardware resources. After the desired action is completed, the system call sets the mode bit back to '0'. After the return context switch is completed, control is handed back to the caller.
+
+2) Why is the microkernel approach considered more flexible than other OS design methodologies from the viewpoint of system adaption to changes?
+
+The microkernel approach is more flexbile because its small size means that changes to various components can be made without breaking critical functionality. This can be compared to the monolithic approach, where the various parts of the kernel such as the file system, memory manager, and scheduler, to name a few, are tightly intertwined. 
+
+3) The producer-consumer problem can be solved using either the shared memory approach or the message passing approach shown in class. Explain why the message passing approach is free from handling process synchronization but less efficient than the shared memory approach.
+
+The message passing approach involves two functions, namely send(message) and receive(message), which are called by the sender and receiver, respectively. The advantage of this approach is that the sender and receiver never access the same memory space, since messages are passed by an intermediary routine. Meanwhile, with the shared memory approach, is is very possible for the producer and consumer to try and dereference their respective data pointers at the same time at the same location in memory; thus some sort of synchronizer is needed to prevent this. The shared memory approach is more efficient because it only requires the processes sharing the memory to have pointers which they can use to access memory. Meanwhile, the message passing approach requires some sort of delivery service which adds considerable overhead.
