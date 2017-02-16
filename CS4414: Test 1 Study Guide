@@ -176,6 +176,9 @@ Chapter 3: Processes
 				1) Named papes (a.k.a FIFO)
 					- Normally used by unrelated processes
 						-e.g. producer/consumer, reader/writer, etc
+					- No parent/child relationship needed
+					- Can have several writers
+					
 				2) Unnamed Pipes(a.k.a anonymous pipes)
 					- Usually used by related procs
 						-e.g. parent/child
@@ -187,7 +190,7 @@ Chapter 3: Processes
 
 - Sample Questions
 
-1) Most Modern OSs support two modes (user and kernel mode) for resource protection. Describe how an application running in the user mode access a system resource.
+1) Most Modern OSs support two modes (user and kernel mode) for resource protection. Describe how an application runnign in the user mode access a system resource.
 
 If an application wants to access a system resource, it must make a system call. This can happen by directly calling said system call, or calling a library function in which the system call is itself called (in fact, on Windows only the latter method is allowed). The system call begins by setting the mode bit to '1', which allows access to hardware resources. After the desired action is completed, the system call sets the mode bit back to '0'. After the return context switch is completed, control is handed back to the caller.
 
