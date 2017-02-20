@@ -15,6 +15,8 @@
 #define ALLOWED_CHARS_REGEX (const char*) "^[A-Za-z0-9[:space:]\\.\\_\\-]+([<|>]?[[:space:]]* [A-Za-z0-9\\._]+[A-Za-z0-9[:space:]\\.\\_\\-]*)*$"
 #define WORD_DELIM " "
 #define STARTUP_STRING "shell++\nJake Saltzman\nCS4414 Spring 2017\n\n"
+#define MAX_CHARS_PER_CMD_WORD 32
+
 // ---------------------------------------------------- Debugging stuff
 #define DEBUG 0
 #define debug_print(...) \
@@ -63,6 +65,7 @@ typedef enum {
 	EXTRACT_CMDS,
 	EXECUTE,
 	HANDLE_ERROR,
+	CLEANUP,
 	SHUTDOWN,
 } sppstate_t;
 
@@ -74,6 +77,8 @@ typedef enum {
 
 typedef struct {
 	char* stdin_buffer;
+	int cmdwordcount;
+	char** args;
 } sdata_t;
 
 typedef struct {

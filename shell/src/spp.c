@@ -68,7 +68,7 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 			nextstate = CHECK_SYNTAX;
 		} break;
 		case(CHECK_SYNTAX): {
-			syntax_t syntaxstatus = ERR;
+			syntax_t syntaxstatus = OK;
 			CheckSyntax(sdata->stdin_buffer, &syntaxstatus, serror);
 
 			if(syntaxstatus == OK){
@@ -79,15 +79,69 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 				// debug_print("\tBlank Line Entered");
 			} else {
 				nextstate = HANDLE_ERROR;
-				debug_print("\tSyntax error");
+				debug_print("\tSyntax error\n");
 			}
 		} break;
 		case(EXTRACT_CMDS): {
-			debug_print("\nExtracting commands...\n");
-			nextstate = EXECUTE;
+			if(!strcmp(sdata->stdin_buffer, EXIT_CMD)) {
+				nextstate = SHUTDOWN;
+			} else {
+				debug_print("\nExtracting commands...\n");
+				int i;
+				int k = 1;
+				char* tok;
+
+				sdata->cmdwordcount = CountWords(sdata->stdin_buffer);
+				sdata->args = (char**) malloc(sizeof(char*)*sdata->cmdwordcount + 1);
+				(sdata->args)[sdata->cmdwordcount] = NULL;
+
+				for(i = 0; i < sdata->cmdwordcount; i++) {
+					(sdata->args)[i] = (char*) malloc(sizeof(char)*MAX_CHARS_PER_CMD_WORD+1);
+				}
+
+				tok = strtok(sdata->stdin_buffer, WORD_DELIM);
+				strcpy(sdata->args[0], tok);
+				while(tok) {
+					tok = strtok(NULL, WORD_DELIM);
+					if(tok != NULL && strcmp(tok,"\t") && strcmp(tok, " ")){
+						strcpy((sdata->args)[k], tok);
+						k += 1;
+					}
+
+				}
+
+				nextstate = EXECUTE;
+			}
 		} break;
 		case(EXECUTE):{
-			debug_print("\nExecuting Commands...\n");
+			debug_print("\tExecuting Commands...\n");
+			int i;
+			for(i = 0; i < sdata->cmdwordcount; i++) {
+				debug_print("\t\t%s\n",(sdata->args)[i]);
+			}
+
+			int pid;
+			int status;
+			pid = fork();
+			if(pid != 0) {
+				waitpid(pid, &status, 0);
+			} else if (pid < 0) {
+				*serror = FORK_FAILED_ERROR;
+			} else {
+				execvp((sdata->args)[0], sdata->args);
+				*serror = EXEC_FAILED_ERROR;
+				exit(EXIT_FAILURE);
+			}
+			nextstate = CLEANUP;
+		} break;
+		case(CLEANUP):{
+			debug_print("\tCleaning up...\n");
+			int i;
+			for(i = 0; i < sdata->cmdwordcount; i++) {
+				free((sdata->args)[i]);
+			}
+			free(sdata->args);
+
 			nextstate = GETLINE;
 		} break;
 		case(SHUTDOWN): { 
@@ -162,7 +216,7 @@ void GrabLine(char* targetbuf, error_t* serror) {
 			// printf("%d", strsize);
 			int c;
 			while ((c = getchar()) != EOF && c != '\n')
-            	continue;
+				continue;
 			break;
 		}
 	}
@@ -211,8 +265,9 @@ void CheckSyntax(char* srcbuf, syntax_t* syntaxstatus, error_t* serror) {
 			return;
 		}
 
-	syntaxstatus = OK;
+		*syntaxstatus = OK;
 
+	}
 }
 
 void HandleError(error_t *errorin) {
