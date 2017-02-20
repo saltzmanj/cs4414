@@ -8,10 +8,16 @@ OFILES = @echo *.o
 
 CMDSRCDIR = src
 TARGETBIN = jsh
+TARGETBIN2 = spp
 
-jsh: $(CMDSRCDIR)/main.o $(CMDSRCDIR)/jsh.o
+spp: $(CMDSRCDIR)/spp.c $(CMDSRCDIR)/*.*
+	$(CXX) $(CXXFLAGS) $(CMDSRCDIR)/spp.c -o $(TARGETBIN2)
+	@echo "SPP Compiled"
+
+jsh: $(CMDSRCDIR)/main.o $(CMDSRCDIR)/jsh.c $(CMDSRCDIR)/*.*
 	$(CXX) $(CXXFLAGS) $(CMDSRCDIR)/main.c $(CMDSRCDIR)/jsh.c -o $(TARGETBIN)
 	@echo "JSH Compiled"
+
 
 
 clean:

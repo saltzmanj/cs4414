@@ -8,10 +8,6 @@ int main() {
 	
 	while(shellstatus.xflag != 1) {
 		shellstatus = RunJsh();
-
-		if (shellstatus.eflag == 1) {
-			printf("ERROR: %s\n", shellstatus.msg);
-		}
 	}
 	
 	ExitJsh();
