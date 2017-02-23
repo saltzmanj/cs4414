@@ -7,6 +7,8 @@
 #include <regex.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 // ---------------------------------------------------- Parameters 
 #define MAX_CHARS_PER_LINE 80
@@ -15,7 +17,7 @@
 #define ALLOWED_CHARS_REGEX (const char*) "^[A-Za-z0-9[:space:]\\.\\_\\-]+([<|>]?[[:space:]]* [A-Za-z0-9\\._]+[A-Za-z0-9[:space:]\\.\\_\\-]*)*$"
 #define WORD_DELIM " "
 #define STARTUP_STRING "shell++\nJake Saltzman\nCS4414 Spring 2017\n\n"
-#define MAX_CHARS_PER_CMD_WORD 32
+#define MAX_ARGS 8
 
 // ---------------------------------------------------- Debugging stuff
 #define DEBUG 0
@@ -53,6 +55,9 @@
 #define REGEX_MSG "Regex failed to compile."
 #define REGEX_ERROR (error_t) {1, 301, REGEX_MSG, 0, 1}
 
+#define REDIR_ERR_MSG "Error redirecting to file."
+#define REDIR_ERROR (error_t) {1, 401, REDIR_ERR_MSG, 0, 0}
+
 // -------------------------------------------------- Global Variables
 regex_t pregex;
 
@@ -70,6 +75,18 @@ typedef enum {
 } sppstate_t;
 
 typedef enum {
+	INITIALIZE_PS,
+	GETWORD_PS,
+	SET_HASSTDOUT,
+	SET_HASSTDIN,
+	SET_STDOUTFN,
+	SET_STDINFN,
+	SET_ARGS,
+	CLEANUP_PS,
+	SHUTDOWN_PS
+} parserstate_t;
+
+typedef enum {
 	OK,
 	BLANK,
 	ERR
@@ -79,6 +96,13 @@ typedef struct {
 	char* stdin_buffer;
 	int cmdwordcount;
 	char** args;
+	int argsct;
+
+	int has_stdout_redir;
+	int has_stdin_redir;
+
+	char* stdout_redir_fn;
+	char* stdin_redir_fn;
 } sdata_t;
 
 typedef struct {
@@ -105,5 +129,8 @@ void CheckSyntax(char* srcbuf, syntax_t* syntaxstatus, error_t* serror);
 int CountWords(char* string);
 void FreeBuffer(char** args[], error_t* errorin);
 void HandleError(error_t *errorin);
+
+void ExtractCmds(sdata_t* sdata, error_t* serror);
+parserstate_t RunExtractor(parserstate_t statein, char** strptr, sdata_t* sdata, error_t* serror);
 
 #endif

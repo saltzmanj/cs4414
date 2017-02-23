@@ -10,12 +10,18 @@ int main() {
 // ----------------------------------- Top Level State Machine
 
 void SppRun() {
+	// Initialize the necessary data structures for the state machine, e.g
+	//	 Current State
+	//	 Persistent data struct
+	//   Persistent error cluster
 	sppstate_t currentstate = INITIALIZE;
 	sdata_t sdata = SDATA_INIT;
 	error_t serror = NO_ERROR;
 
 	while(1) {
 		currentstate = SppIterate(currentstate, &sdata, &serror);
+
+		// Break on shutdown
 		if(currentstate == SHUTDOWN) {
 			SppIterate(SHUTDOWN, &sdata, &serror);
 			break;
@@ -31,21 +37,34 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 		nextstate = HANDLE_ERROR;
 	}
 
+
 	switch(statein){
+		// Perform Initialization steps
+		// 		1. malloc() stdin_buffer
+		//   		- null terminate the buffer for safety 
+		//     	2. Compile the syntax checking regex
+
 		case(INITIALIZE): {
 			debug_print("Initializing...\n");
 			int status;
-			// Initialize the stdin buffer			
+			
 			sdata->stdin_buffer = (char*) malloc(sizeof(char)*MAX_CHARS_PER_LINE + 1);
 			sdata->stdin_buffer[MAX_CHARS_PER_LINE] = '\0';
 			status = regcomp(&pregex, ALLOWED_CHARS_REGEX, REG_EXTENDED|REG_NOSUB);
 			
+			// Throw a regex error if compilation fails
 			if(status != 0) {
 				*serror = REGEX_ERROR;
 			}
+
+			// Transition to GETLINE
 			nextstate = GETLINE;
 		} break;
 
+		// Handle Errors
+		// 		1. If the error is fatal, shutdown
+		//   	   Otherwise, go to get line
+		//      2. Clear the error
 		case(HANDLE_ERROR): {
 			// debug_print("\tHandling an error...\n");
 			HandleError(serror);
@@ -58,6 +77,10 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 			*serror = NO_ERROR;
 
 		} break;
+
+		// Get a line from stdin
+		// 		1. Print the prompt string	
+		//   	2. Call GrabLine() to get the characters
 		case(GETLINE): {
 			// debug_print("Getting a line... ");
 			printf("%s", PROMPT_STRING);
@@ -67,6 +90,13 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 			
 			nextstate = CHECK_SYNTAX;
 		} break;
+
+		// Check the syntax of the grabbed line
+		// 		1. Call CheckSyntax()
+		//   	2. If the syntax is incorrect, throw an error and set proceed to HANDLE_ERROR state
+		//    		- This isn't strictly necessary since errors rudely interrupt
+		//      3. If a blank line is entered, go back to getline
+		//      	- This prevents creating an unecessary fork()
 		case(CHECK_SYNTAX): {
 			syntax_t syntaxstatus = OK;
 			CheckSyntax(sdata->stdin_buffer, &syntaxstatus, serror);
@@ -82,56 +112,80 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 				debug_print("\tSyntax error\n");
 			}
 		} break;
+
+		// Extract commands from the buffer
+		// 		1. Check if the command entered was exit. If so, go to SHUTDOWN
+		//   	2. Count the number of words in the buffer. This will be the size of the args[] array passed to exec()
+		//    	3. malloc() args[]
+		//      4. Use strtok to populate args[], ignoring whitespace
 		case(EXTRACT_CMDS): {
 			if(!strcmp(sdata->stdin_buffer, EXIT_CMD)) {
 				nextstate = SHUTDOWN;
 			} else {
-				debug_print("\nExtracting commands...\n");
-				int i;
-				int k = 1;
-				char* tok;
+				sdata->stdin_redir_fn = (char*) malloc(sizeof(char) * MAX_CHARS_PER_LINE + 1);
 
-				sdata->cmdwordcount = CountWords(sdata->stdin_buffer);
-				sdata->args = (char**) malloc(sizeof(char*)*sdata->cmdwordcount + 1);
-				(sdata->args)[sdata->cmdwordcount] = NULL;
+				sdata->stdout_redir_fn = (char*) malloc(sizeof(char) * MAX_CHARS_PER_LINE + 1);
 
-				for(i = 0; i < sdata->cmdwordcount; i++) {
-					(sdata->args)[i] = (char*) malloc(sizeof(char)*MAX_CHARS_PER_CMD_WORD+1);
-				}
-
-				tok = strtok(sdata->stdin_buffer, WORD_DELIM);
-				strcpy(sdata->args[0], tok);
-				while(tok) {
-					tok = strtok(NULL, WORD_DELIM);
-					if(tok != NULL && strcmp(tok,"\t") && strcmp(tok, " ")){
-						strcpy((sdata->args)[k], tok);
-						k += 1;
-					}
-
-				}
-
+				ExtractCmds(sdata, serror);
 				nextstate = EXECUTE;
 			}
-		} break;
-		case(EXECUTE):{
-			debug_print("\tExecuting Commands...\n");
-			int i;
-			for(i = 0; i < sdata->cmdwordcount; i++) {
-				debug_print("\t\t%s\n",(sdata->args)[i]);
-			}
 
+		} break;
+
+		// Execute
+		// 		1. fork() the current process
+		//   	
+		//    	Parent:
+		//     		1. waitpid()
+		//       
+		case(EXECUTE):{
+			debug_print("Executing...\n");
 			int pid;
 			int status;
+			
+
 			pid = fork();
+
 			if(pid != 0) {
+				// Parent
 				waitpid(pid, &status, 0);
 			} else if (pid < 0) {
 				*serror = FORK_FAILED_ERROR;
 			} else {
+				// Child
+				
+				// Stdout redirection
+				if(sdata->has_stdout_redir) {
+					debug_print("\tRedirecting stdout to: %s\n", sdata->stdout_redir_fn);
+					int filedesc;
+					filedesc = open(sdata->stdout_redir_fn, O_WRONLY |  O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
+					if (filedesc < 0) {
+						*serror = REDIR_ERROR;
+					}
+					dup2(filedesc, 1); // stdout -> file
+					close(filedesc);
+
+				}
+
+				// stdin redirection
+				if(sdata->has_stdin_redir) {
+					debug_print("\tRedirecting stdin to: %s\n", sdata->stdin_redir_fn);
+					int filedesc;
+					filedesc = open(sdata->stdin_redir_fn, O_RDONLY);
+					if (filedesc < 0) {
+						*serror = REDIR_ERROR;
+					}
+					dup2(filedesc, 0); // stdin -> file
+					close(filedesc);
+				}
+
 				execvp((sdata->args)[0], sdata->args);
 				*serror = EXEC_FAILED_ERROR;
 				exit(EXIT_FAILURE);
 			}
+
+			sdata->has_stdin_redir = 0;
+			sdata->has_stdout_redir = 0;
 			nextstate = CLEANUP;
 		} break;
 		case(CLEANUP):{
@@ -141,7 +195,10 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 				free((sdata->args)[i]);
 			}
 			free(sdata->args);
-
+			free(sdata->stdout_redir_fn);
+			free(sdata->stdin_redir_fn);
+			sdata->has_stdout_redir = 0;
+			sdata->has_stdin_redir = 0;
 			nextstate = GETLINE;
 		} break;
 		case(SHUTDOWN): { 
@@ -163,7 +220,7 @@ int CountWords(char* string) {
 	if(*strptr != '\0') {
 		wordcount = 1;
 	}
-	while(*strptr != '\0') {
+	while(*strptr != '\0' && *strptr != '>' && *strptr != '<') {
 		if(*strptr == ' ') {
 			in_whitespace = 1;
 		} else {
@@ -274,4 +331,85 @@ void HandleError(error_t *errorin) {
 	if (errorin->eflag == 1) {
 		printf("ERROR: %s\n", errorin->msg);
 	}
+}
+
+void ExtractCmds(sdata_t* sdata, error_t* serror){
+	parserstate_t cstate = INITIALIZE;
+	char* strptr;
+	sdata->argsct = 0;
+	while(1){
+		cstate = RunExtractor(cstate, &strptr, sdata, serror);
+		if(cstate == SHUTDOWN_PS){
+			break;
+		}
+	}
+}
+
+parserstate_t RunExtractor(parserstate_t statein, char** strptr, sdata_t* sdata, error_t* serror){
+	parserstate_t nextstate = SHUTDOWN_PS;
+
+	switch(statein){
+		case(INITIALIZE_PS):{
+			sdata->args = (char**) malloc(sizeof(char*)*MAX_ARGS + 1);
+			*strptr = strtok(sdata->stdin_buffer, WORD_DELIM);
+			nextstate = SET_ARGS;
+		} break;
+		case(GETWORD_PS) :{
+			*strptr = strtok(NULL, WORD_DELIM);
+			if(!*strptr || **strptr == '\0') {
+				nextstate = CLEANUP_PS;
+			} else if(**strptr == '<') {
+				nextstate = SET_HASSTDIN;
+			} else if(**strptr == '>') {
+				nextstate = SET_HASSTDOUT;
+			} else {
+				nextstate = SET_ARGS;
+			}
+
+		} break;
+		case(SET_HASSTDOUT): {
+			sdata->has_stdout_redir = 1;
+			nextstate = SET_STDOUTFN;
+		} break;
+		case(SET_STDOUTFN): {
+			*strptr = strtok(NULL, WORD_DELIM);
+			strcpy(sdata->stdout_redir_fn, *strptr);
+			nextstate = GETWORD_PS;
+		} break;
+		case(SET_HASSTDIN): {
+			sdata->has_stdin_redir = 1;
+			nextstate = SET_STDINFN;
+		} break;
+		case(SET_STDINFN): {
+			*strptr = strtok(NULL,WORD_DELIM);
+			strcpy(sdata->stdin_redir_fn, *strptr);
+			nextstate = GETWORD_PS;
+		} break;
+		case(SET_ARGS): {
+			int k = sdata->argsct;
+			sdata->args[k] = (char*) malloc(sizeof(char)*strlen(*strptr) + 1);
+			strcpy(sdata->args[k], *strptr);
+			sdata->argsct += 1;
+			nextstate = GETWORD_PS;
+		} break;
+		case(CLEANUP_PS): {
+			sdata->args[sdata->argsct] = NULL;
+			int i;
+			for(i = 0; i < sdata->argsct; i++) {
+				debug_print("\t Entered Arg: %s\n",sdata->args[i]);
+			}
+			if(sdata->has_stdin_redir) {
+				debug_print("\t stdin redir: %s\n", sdata->stdin_redir_fn);
+			}
+			if(sdata->has_stdout_redir) {
+				debug_print("\t stdout redir: %s\n", sdata->stdout_redir_fn);
+			}
+			nextstate = SHUTDOWN_PS;
+		} break;
+		case(SHUTDOWN_PS):{
+			nextstate = SHUTDOWN_PS;
+		} break;
+	}
+
+	return nextstate;
 }
