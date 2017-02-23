@@ -46,16 +46,11 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 
 		case(INITIALIZE): {
 			debug_print("Initializing...\n");
-			int status;
+			// int status;
 			
 			sdata->stdin_buffer = (char*) malloc(sizeof(char)*MAX_CHARS_PER_LINE + 1);
 			sdata->stdin_buffer[MAX_CHARS_PER_LINE] = '\0';
-			status = regcomp(&pregex, ALLOWED_CHARS_REGEX, REG_EXTENDED|REG_NOSUB);
-			
-			// Throw a regex error if compilation fails
-			if(status != 0) {
-				*serror = REGEX_ERROR;
-			}
+		
 
 			// Transition to GETLINE
 			nextstate = GETLINE;
@@ -91,6 +86,7 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 			nextstate = CHECK_SYNTAX;
 		} break;
 
+
 		// Check the syntax of the grabbed line
 		// 		1. Call CheckSyntax()
 		//   	2. If the syntax is incorrect, throw an error and set proceed to HANDLE_ERROR state
@@ -122,14 +118,59 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 			if(!strcmp(sdata->stdin_buffer, EXIT_CMD)) {
 				nextstate = SHUTDOWN;
 			} else {
-				sdata->stdin_redir_fn = (char*) malloc(sizeof(char) * MAX_CHARS_PER_LINE + 1);
+				char* tok;
+				int j = 0;
+				int k = 0;
 
-				sdata->stdout_redir_fn = (char*) malloc(sizeof(char) * MAX_CHARS_PER_LINE + 1);
+				sdata->cmds = (cmd_t*) calloc(MAX_PIPED_CMDS + 1, sizeof(cmd_t));
+				for(k = 0; k < MAX_PIPED_CMDS; k++) {
+					sdata->cmds[k].stdin_redir_fn = (char*) calloc(MAX_CHARS_PER_LINE + 1,sizeof(char));
+					sdata->cmds[k].stdout_redir_fn = (char*) calloc(MAX_CHARS_PER_LINE + 1,sizeof(char));
+					sdata->cmds[k].buffin = (char*) malloc(sizeof(char) * MAX_CHARS_PER_LINE + 1);
+					sdata->cmds[k].args = (char**) malloc(sizeof(char*)*MAX_ARGS + 1);
+				}
+
+				tok = strtok(sdata->stdin_buffer, PIPE_CHAR);
+				j = 0;
+				while(tok) {
+					strcpy(sdata->cmds[j].buffin, tok);
+					j += 1;
+					tok = strtok(NULL, PIPE_CHAR);
+				}
+
+				sdata->cmdscount = j;
 
 				ExtractCmds(sdata, serror);
+				DebugPrintCommands(sdata);
 				nextstate = EXECUTE;
 			}
 
+		} break;
+	
+		case(CLEANUP):{
+			debug_print("\tCleaning up...\n");
+
+			int j;
+			int i;
+
+			for(j = 0; j < sdata->cmdscount; j++){
+				for(i = 0; i < sdata->cmds[j].argsct; i++) {
+					free(sdata->cmds[j].args[i]);
+				}			
+				sdata->cmds[j].has_stdout_redir = 0;
+				sdata->cmds[j].has_stdin_redir = 0;
+			}
+
+			j = 0;
+			for(j = 0; j < MAX_PIPED_CMDS + 1; j++){
+				free(sdata->cmds[j].stdin_redir_fn);
+				free(sdata->cmds[j].stdout_redir_fn);
+				free(sdata->cmds[j].buffin);
+				free(sdata->cmds[j].args);
+			}
+			sdata->cmdscount = 0;
+			free(sdata->cmds);
+			nextstate = GETLINE;
 		} break;
 
 		// Execute
@@ -155,10 +196,10 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 				// Child
 				
 				// Stdout redirection
-				if(sdata->has_stdout_redir) {
-					debug_print("\tRedirecting stdout to: %s\n", sdata->stdout_redir_fn);
+				if(sdata->cmds[0].has_stdout_redir) {
+					debug_print("\tRedirecting stdout to: %s\n", sdata->cmds[0].stdout_redir_fn);
 					int filedesc;
-					filedesc = open(sdata->stdout_redir_fn, O_WRONLY |  O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
+					filedesc = open(sdata->cmds[0].stdout_redir_fn, O_WRONLY |  O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
 					if (filedesc < 0) {
 						*serror = REDIR_ERROR;
 					}
@@ -168,10 +209,10 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 				}
 
 				// stdin redirection
-				if(sdata->has_stdin_redir) {
-					debug_print("\tRedirecting stdin to: %s\n", sdata->stdin_redir_fn);
+				if(sdata->cmds[0].has_stdin_redir) {
+					debug_print("\tRedirecting stdin to: %s\n", sdata->cmds[0].stdin_redir_fn);
 					int filedesc;
-					filedesc = open(sdata->stdin_redir_fn, O_RDONLY);
+					filedesc = open(sdata->cmds[0].stdin_redir_fn, O_RDONLY);
 					if (filedesc < 0) {
 						*serror = REDIR_ERROR;
 					}
@@ -179,27 +220,14 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 					close(filedesc);
 				}
 
-				execvp((sdata->args)[0], sdata->args);
+				execvp((sdata->cmds[0].args)[0], sdata->cmds[0].args);
 				*serror = EXEC_FAILED_ERROR;
 				exit(EXIT_FAILURE);
 			}
 
-			sdata->has_stdin_redir = 0;
-			sdata->has_stdout_redir = 0;
+			sdata->cmds[0].has_stdin_redir = 0;
+			sdata->cmds[0].has_stdout_redir = 0;
 			nextstate = CLEANUP;
-		} break;
-		case(CLEANUP):{
-			debug_print("\tCleaning up...\n");
-			int i;
-			for(i = 0; i < sdata->cmdwordcount; i++) {
-				free((sdata->args)[i]);
-			}
-			free(sdata->args);
-			free(sdata->stdout_redir_fn);
-			free(sdata->stdin_redir_fn);
-			sdata->has_stdout_redir = 0;
-			sdata->has_stdin_redir = 0;
-			nextstate = GETLINE;
 		} break;
 		case(SHUTDOWN): { 
 			debug_print("\nShutting Down...\n");
@@ -208,30 +236,6 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 	}
 
 	return nextstate;
-}
-
-
-// ----------------------------------- Utility Functions
-int CountWords(char* string) {
-	char* strptr = string;
-	int wordcount = 0;
-	int in_whitespace = 0;
-
-	if(*strptr != '\0') {
-		wordcount = 1;
-	}
-	while(*strptr != '\0' && *strptr != '>' && *strptr != '<') {
-		if(*strptr == ' ') {
-			in_whitespace = 1;
-		} else {
-			if(in_whitespace == 1) {
-				wordcount += 1;
-			}
-			in_whitespace = 0;
-		}
-		strptr += sizeof(char);
-	}
-	return wordcount;
 }
 
 void FreeBuffer(char** args[], error_t* errorin) {
@@ -289,6 +293,13 @@ void CheckSyntax(char* srcbuf, syntax_t* syntaxstatus, error_t* serror) {
 	int regmatch = 0;
 	int status = 0;
 	int redirchar = -1;
+	status = regcomp(&pregex, ALLOWED_CHARS_REGEX, REG_EXTENDED|REG_NOSUB);
+			
+	// Throw a regex error if compilation fails
+	if(status != 0) {
+		*serror = REGEX_ERROR;
+	}
+
 	regmatch = regexec(&pregex, srcbuf, (size_t) 0, NULL, 0);
 
 	if(srcbuf[0] == '\0'){
@@ -334,24 +345,27 @@ void HandleError(error_t *errorin) {
 }
 
 void ExtractCmds(sdata_t* sdata, error_t* serror){
-	parserstate_t cstate = INITIALIZE;
-	char* strptr;
-	sdata->argsct = 0;
-	while(1){
-		cstate = RunExtractor(cstate, &strptr, sdata, serror);
-		if(cstate == SHUTDOWN_PS){
-			break;
+	int i;
+	for(i = 0; i < sdata->cmdscount; i++) {
+		parserstate_t cstate = INITIALIZE;
+		sdata->cmds[i].argsct = 0;
+		char* strptr = sdata->cmds[i].buffin;
+		while(1){
+			cstate = RunExtractor(cstate, &strptr, &(sdata->cmds[i]), serror);
+			if(cstate == SHUTDOWN_PS){
+				break;
+			}
 		}
 	}
 }
 
-parserstate_t RunExtractor(parserstate_t statein, char** strptr, sdata_t* sdata, error_t* serror){
+parserstate_t RunExtractor(parserstate_t statein, char** strptr, cmd_t* cmddata, error_t* serror) {
 	parserstate_t nextstate = SHUTDOWN_PS;
 
 	switch(statein){
 		case(INITIALIZE_PS):{
-			sdata->args = (char**) malloc(sizeof(char*)*MAX_ARGS + 1);
-			*strptr = strtok(sdata->stdin_buffer, WORD_DELIM);
+			cmddata->args = (char**) malloc(sizeof(char*)*MAX_ARGS + 1);
+			*strptr = strtok(cmddata->buffin, WORD_DELIM);
 			nextstate = SET_ARGS;
 		} break;
 		case(GETWORD_PS) :{
@@ -368,42 +382,32 @@ parserstate_t RunExtractor(parserstate_t statein, char** strptr, sdata_t* sdata,
 
 		} break;
 		case(SET_HASSTDOUT): {
-			sdata->has_stdout_redir = 1;
+			cmddata->has_stdout_redir = 1;
 			nextstate = SET_STDOUTFN;
 		} break;
 		case(SET_STDOUTFN): {
 			*strptr = strtok(NULL, WORD_DELIM);
-			strcpy(sdata->stdout_redir_fn, *strptr);
+			strcpy(cmddata->stdout_redir_fn, *strptr);
 			nextstate = GETWORD_PS;
 		} break;
 		case(SET_HASSTDIN): {
-			sdata->has_stdin_redir = 1;
+			cmddata->has_stdin_redir = 1;
 			nextstate = SET_STDINFN;
 		} break;
 		case(SET_STDINFN): {
 			*strptr = strtok(NULL,WORD_DELIM);
-			strcpy(sdata->stdin_redir_fn, *strptr);
+			strcpy(cmddata->stdin_redir_fn, *strptr);
 			nextstate = GETWORD_PS;
 		} break;
 		case(SET_ARGS): {
-			int k = sdata->argsct;
-			sdata->args[k] = (char*) malloc(sizeof(char)*strlen(*strptr) + 1);
-			strcpy(sdata->args[k], *strptr);
-			sdata->argsct += 1;
+			int k = cmddata->argsct;
+			cmddata->args[k] = (char*) malloc(sizeof(char)*strlen(*strptr) + 1);
+			strcpy(cmddata->args[k], *strptr);
+			cmddata->argsct += 1;
 			nextstate = GETWORD_PS;
 		} break;
 		case(CLEANUP_PS): {
-			sdata->args[sdata->argsct] = NULL;
-			int i;
-			for(i = 0; i < sdata->argsct; i++) {
-				debug_print("\t Entered Arg: %s\n",sdata->args[i]);
-			}
-			if(sdata->has_stdin_redir) {
-				debug_print("\t stdin redir: %s\n", sdata->stdin_redir_fn);
-			}
-			if(sdata->has_stdout_redir) {
-				debug_print("\t stdout redir: %s\n", sdata->stdout_redir_fn);
-			}
+			cmddata->args[cmddata->argsct] = NULL;
 			nextstate = SHUTDOWN_PS;
 		} break;
 		case(SHUTDOWN_PS):{
@@ -412,4 +416,23 @@ parserstate_t RunExtractor(parserstate_t statein, char** strptr, sdata_t* sdata,
 	}
 
 	return nextstate;
+}
+
+void DebugPrintCommands(sdata_t* sdata) {
+	int i;
+	debug_print("\tThe following commands were entered:\n");
+
+	for(i = 0; i < sdata->cmdscount; i++) {
+		debug_print("\t\tCommand Group %d:\n", i);
+		int j;
+		for(j = 0; j < sdata->cmds[i].argsct; j++){
+			debug_print("\t\t\tEntered Arg: %s\n", sdata->cmds[i].args[j]);
+		}
+		if(sdata->cmds[i].has_stdin_redir){
+			debug_print("\t\t\tStdin Redir to: %s\n", sdata->cmds[i].stdin_redir_fn);
+		}
+		if(sdata->cmds[i].has_stdout_redir){
+			debug_print("\t\t\tStdout Redir to: %s\n", sdata->cmds[i].stdout_redir_fn);
+		}
+	}
 }

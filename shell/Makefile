@@ -2,7 +2,7 @@
 # 28 February 2017
 # Makefile for Shell
 
-CXXFLAGS = -std=c99 -g -O2
+CXXFLAGS = -std=c99 -g 
 CXX = gcc
 OFILES = @echo *.o
 

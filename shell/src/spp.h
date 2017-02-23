@@ -16,11 +16,12 @@
 #define PROMPT_STRING "spp$ "
 #define ALLOWED_CHARS_REGEX (const char*) "^[A-Za-z0-9[:space:]\\.\\_\\-]+([<|>]?[[:space:]]* [A-Za-z0-9\\._]+[A-Za-z0-9[:space:]\\.\\_\\-]*)*$"
 #define WORD_DELIM " "
+#define PIPE_CHAR "|"
 #define STARTUP_STRING "shell++\nJake Saltzman\nCS4414 Spring 2017\n\n"
 #define MAX_ARGS 8
-
+#define MAX_PIPED_CMDS 4
 // ---------------------------------------------------- Debugging stuff
-#define DEBUG 0
+#define DEBUG 1
 #define debug_print(...) \
 	do { if (DEBUG) fprintf(stdout, __VA_ARGS__); } while(0)
 
@@ -93,8 +94,7 @@ typedef enum {
 } syntax_t;
 
 typedef struct {
-	char* stdin_buffer;
-	int cmdwordcount;
+	char* buffin;
 	char** args;
 	int argsct;
 
@@ -103,7 +103,15 @@ typedef struct {
 
 	char* stdout_redir_fn;
 	char* stdin_redir_fn;
+} cmd_t;
+
+typedef struct {
+	char* stdin_buffer;
+	
+	cmd_t* cmds;
+	int cmdscount;
 } sdata_t;
+
 
 typedef struct {
 	int eflag; // 1 if error, 0 otherwise
@@ -124,13 +132,16 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror);
 // -------------------------------------------------- Key Functions
 void GrabLine(char* targetbuf, error_t* serror);
 void CheckSyntax(char* srcbuf, syntax_t* syntaxstatus, error_t* serror);
+void HandleError(error_t *errorin);
+
 // -------------------------------------------------- Utility Functions
 
 int CountWords(char* string);
 void FreeBuffer(char** args[], error_t* errorin);
-void HandleError(error_t *errorin);
+void DebugPrintCommands(sdata_t* sdata);
 
+// -------------------------------------------------- Command Extractor State Machine Mechanics
 void ExtractCmds(sdata_t* sdata, error_t* serror);
-parserstate_t RunExtractor(parserstate_t statein, char** strptr, sdata_t* sdata, error_t* serror);
+parserstate_t RunExtractor(parserstate_t statein, char** strptr, cmd_t* sdata, error_t* serror);
 
 #endif
