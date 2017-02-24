@@ -14,7 +14,7 @@
 #define MAX_CHARS_PER_LINE 80
 #define STAT_MESSAGE_MAX_CHARS 64
 #define PROMPT_STRING "spp$ "
-#define ALLOWED_CHARS_REGEX (const char*) "^[A-Za-z0-9[:space:]\\.\\_\\-]+([<|>]?[[:space:]]* [A-Za-z0-9\\._]+[A-Za-z0-9[:space:]\\.\\_\\-]*)*$"
+#define ALLOWED_CHARS_REGEX (const char*) "^[A-Za-z0-9[:space:]\\.\\_\\-]+([<|>]?[[:space:]]*[A-Za-z0-9\\._]+[A-Za-z0-9[:space:]\\.\\_\\-]*)*$"
 #define WORD_DELIM " "
 #define PIPE_CHAR "|"
 #define STARTUP_STRING "shell++\nJake Saltzman\nCS4414 Spring 2017\n\n"
@@ -137,8 +137,8 @@ void HandleError(error_t *errorin);
 // -------------------------------------------------- Utility Functions
 
 int CountWords(char* string);
-void FreeBuffer(char** args[], error_t* errorin);
 void DebugPrintCommands(sdata_t* sdata);
+void SetRedirs(sdata_t* sdata, error_t* serror, int cmdnum);
 
 // -------------------------------------------------- Command Extractor State Machine Mechanics
 void ExtractCmds(sdata_t* sdata, error_t* serror);

@@ -147,6 +147,7 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 
 		} break;
 	
+		// Free all dynamically allocated memory
 		case(CLEANUP):{
 			debug_print("\tCleaning up...\n");
 
@@ -195,38 +196,12 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 			} else {
 				// Child
 				
-				// Stdout redirection
-				if(sdata->cmds[0].has_stdout_redir) {
-					debug_print("\tRedirecting stdout to: %s\n", sdata->cmds[0].stdout_redir_fn);
-					int filedesc;
-					filedesc = open(sdata->cmds[0].stdout_redir_fn, O_WRONLY |  O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
-					if (filedesc < 0) {
-						*serror = REDIR_ERROR;
-					}
-					dup2(filedesc, 1); // stdout -> file
-					close(filedesc);
-
-				}
-
-				// stdin redirection
-				if(sdata->cmds[0].has_stdin_redir) {
-					debug_print("\tRedirecting stdin to: %s\n", sdata->cmds[0].stdin_redir_fn);
-					int filedesc;
-					filedesc = open(sdata->cmds[0].stdin_redir_fn, O_RDONLY);
-					if (filedesc < 0) {
-						*serror = REDIR_ERROR;
-					}
-					dup2(filedesc, 0); // stdin -> file
-					close(filedesc);
-				}
-
+				SetRedirs(sdata, serror, 0);
 				execvp((sdata->cmds[0].args)[0], sdata->cmds[0].args);
 				*serror = EXEC_FAILED_ERROR;
 				exit(EXIT_FAILURE);
 			}
 
-			sdata->cmds[0].has_stdin_redir = 0;
-			sdata->cmds[0].has_stdout_redir = 0;
 			nextstate = CLEANUP;
 		} break;
 		case(SHUTDOWN): { 
@@ -236,16 +211,6 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 	}
 
 	return nextstate;
-}
-
-void FreeBuffer(char** args[], error_t* errorin) {
-	if(errorin->eflag != 1) {
-		int i = 0;
-		while((*args)[i]) {
-			free((*args)[i]);
-			i += 1;
-		}
-	}
 }
 
 void GrabLine(char* targetbuf, error_t* serror) {
@@ -434,5 +399,32 @@ void DebugPrintCommands(sdata_t* sdata) {
 		if(sdata->cmds[i].has_stdout_redir){
 			debug_print("\t\t\tStdout Redir to: %s\n", sdata->cmds[i].stdout_redir_fn);
 		}
+	}
+}
+
+void SetRedirs(sdata_t* sdata, error_t* serror, int cmdnum){
+// Stdout redirection
+	if(sdata->cmds[cmdnum].has_stdout_redir) {
+		debug_print("\tRedirecting stdout to: %s\n", sdata->cmds[cmdnum].stdout_redir_fn);
+		int filedesc;
+		filedesc = open(sdata->cmds[cmdnum].stdout_redir_fn, O_WRONLY |  O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
+		if (filedesc < 0) {
+			*serror = REDIR_ERROR;
+		}
+		dup2(filedesc, 1); // stdout -> file
+		close(filedesc);
+
+	}
+
+	// stdin redirection
+	if(sdata->cmds[cmdnum].has_stdin_redir) {
+		debug_print("\tRedirecting stdin to: %s\n", sdata->cmds[cmdnum].stdin_redir_fn);
+		int filedesc;
+		filedesc = open(sdata->cmds[cmdnum].stdin_redir_fn, O_RDONLY);
+		if (filedesc < 0) {
+			*serror = REDIR_ERROR;
+		}
+		dup2(filedesc, 0); // stdin -> file
+		close(filedesc);
 	}
 }
