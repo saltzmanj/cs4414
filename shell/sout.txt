@@ -1,0 +1,6 @@
+
+apple
+dog
+orange
+paper
+this is a test

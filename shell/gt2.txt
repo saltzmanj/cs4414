@@ -1,0 +1,2 @@
+-rw-rw---- 1 jacob jacob     0 Feb 27 16:57 lstest.txt
+-rw-rw---- 1 jacob jacob     0 Feb 20 14:21 ls.txt

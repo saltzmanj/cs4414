@@ -19,14 +19,27 @@
 #define PIPE_CHAR "|"
 #define STARTUP_STRING "shell++\nJake Saltzman\nCS4414 Spring 2017\n\n"
 #define MAX_ARGS 8
-#define MAX_PIPED_CMDS 4
+#define MAX_PIPED_CMDS 10
 // ---------------------------------------------------- Debugging stuff
-#define DEBUG 1
+// 
+// If this is enabled, a bunch of debugging info will be printed for each line entered
+#define DEBUG 0
+
+// If this is enabled, a delay of SLEEPTIME_US will occur each iteration of the state
+// 	machine. This can prevent some debugging snafus where a bunch of nonsense is printed
+//  to stdout.
+#define DEBUG_SLEEP 0
+#define SLEEPTIME_US (unsigned int) 250000
+
+void usleep();
 #define debug_print(...) \
 	do { if (DEBUG) fprintf(stdout, __VA_ARGS__); } while(0)
+#define debug_sleep() \
+	if(DEBUG_SLEEP) usleep(SLEEPTIME_US);
 
 // ----------------------------------------------------- Shell specific commands
 #define EXIT_CMD "exit"
+#define CD_CMD "cd"
 
 // ------------------------------------------------------ Constants related to error handling
 
@@ -41,6 +54,9 @@
 #define SYNTAX_ERR_DBLREDIR_MSG "Syntax Error - Double Redirect."
 #define SYNTAX_ERR_DBLREDIR_ERROR (error_t) {1, 112, SYNTAX_ERR_DBLREDIR_MSG, 0, 0}
 
+#define SYNTAX_ERR_PIPING_MSG "Syntax Error - Illegal Pipe/Redirect Combination."
+#define SYNTAX_ERR_PIPING_ERROR (error_t) {1, 122, SYNTAX_ERR_PIPING_MSG, 0, 0}
+
 // #define EXIT_MSG "Goodbye!"
 // #define EXIT_ERROR (error_t) {0, 0, EXIT_MSG, 1, 0}
 
@@ -53,12 +69,20 @@
 #define UNKNOWN_MSG "An unknown error occurred."
 #define UNKNOWN_ERROR (error_t) {1, 999, UNKNOWN_MSG, 0, 0}
 
-#define REGEX_MSG "Regex failed to compile."
+#define REGEX_MSG "A runtime error occured in regex.h"
 #define REGEX_ERROR (error_t) {1, 301, REGEX_MSG, 0, 1}
 
 #define REDIR_ERR_MSG "Error redirecting to file."
 #define REDIR_ERROR (error_t) {1, 401, REDIR_ERR_MSG, 0, 0}
 
+#define CD_ERR_MSG "Could not cd to specified path."
+#define CD_ERROR (error_t) {1, 501, CD_ERR_MSG, 0, 0}
+
+#define CD_NO_PATH_MSG "Command 'cd' requies path."
+#define CD_NO_PATH_ERROR (error_t) {1, 502, CD_NO_PATH_MSG, 0, 0}
+
+#define PIPE_ERR_MSG "Piping error."
+#define PIPE_ERROR (error_t) {1, 601, PIPE_ERR_MSG, 0, 0}
 // -------------------------------------------------- Global Variables
 regex_t pregex;
 
@@ -72,7 +96,7 @@ typedef enum {
 	EXECUTE,
 	HANDLE_ERROR,
 	CLEANUP,
-	SHUTDOWN,
+	SHUTDOWN
 } sppstate_t;
 
 typedef enum {
@@ -139,7 +163,8 @@ void HandleError(error_t *errorin);
 int CountWords(char* string);
 void DebugPrintCommands(sdata_t* sdata);
 void SetRedirs(sdata_t* sdata, error_t* serror, int cmdnum);
-
+void SetUpAndExecute(sdata_t* sdata, error_t* serror, int currentcmd, int cmdsleft);
+void CheckPipingRules(sdata_t* sdata, error_t* serror);
 // -------------------------------------------------- Command Extractor State Machine Mechanics
 void ExtractCmds(sdata_t* sdata, error_t* serror);
 parserstate_t RunExtractor(parserstate_t statein, char** strptr, cmd_t* sdata, error_t* serror);

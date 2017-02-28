@@ -34,7 +34,7 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 
 	// If an error is raised, rudely interrupt and move to error handler state
 	if(serror->eflag) {
-		nextstate = HANDLE_ERROR;
+		statein = HANDLE_ERROR;
 	}
 
 
@@ -108,7 +108,6 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 				debug_print("\tSyntax error\n");
 			}
 		} break;
-
 		// Extract commands from the buffer
 		// 		1. Check if the command entered was exit. If so, go to SHUTDOWN
 		//   	2. Count the number of words in the buffer. This will be the size of the args[] array passed to exec()
@@ -142,6 +141,7 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 
 				ExtractCmds(sdata, serror);
 				DebugPrintCommands(sdata);
+				CheckPipingRules(sdata, serror);
 				nextstate = EXECUTE;
 			}
 
@@ -172,6 +172,7 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 			sdata->cmdscount = 0;
 			free(sdata->cmds);
 			nextstate = GETLINE;
+			debug_sleep();
 		} break;
 
 		// Execute
@@ -182,24 +183,37 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 		//       
 		case(EXECUTE):{
 			debug_print("Executing...\n");
-			int pid;
-			int status;
-			
+			if (!strcmp(sdata->cmds[0].args[0], CD_CMD)) {
+				int cdstatus;
+				if(sdata->cmds[0].args[1] == '\0') {
+					*serror = CD_NO_PATH_ERROR;
+				} else {
 
-			pid = fork();
-
-			if(pid != 0) {
-				// Parent
-				waitpid(pid, &status, 0);
-			} else if (pid < 0) {
-				*serror = FORK_FAILED_ERROR;
+					cdstatus = chdir(sdata->cmds[0].args[1]);
+					if (cdstatus) {
+						*serror = CD_ERROR;
+					}
+				}
+			} else if(sdata->cmdscount > 1) {
+				SetUpAndExecute(sdata, serror, 0, sdata->cmdscount);
 			} else {
-				// Child
-				
-				SetRedirs(sdata, serror, 0);
-				execvp((sdata->cmds[0].args)[0], sdata->cmds[0].args);
-				*serror = EXEC_FAILED_ERROR;
-				exit(EXIT_FAILURE);
+				int pid;
+				int status;
+				pid = fork();
+
+				if(pid != 0) {
+					// Parent
+					waitpid(pid, &status, 0);
+				} else if (pid < 0) {
+					*serror = FORK_FAILED_ERROR;
+				} else {
+					// Child
+					
+					SetRedirs(sdata, serror, 0);
+					execvp((sdata->cmds[0].args)[0], sdata->cmds[0].args);
+					*serror = EXEC_FAILED_ERROR;
+					exit(EXIT_FAILURE);
+				}
 			}
 
 			nextstate = CLEANUP;
@@ -285,7 +299,7 @@ void CheckSyntax(char* srcbuf, syntax_t* syntaxstatus, error_t* serror) {
 			strptr += sizeof(char);
 			continue;
 		} else if(*strptr == '<') {
-			redirchar == '<';
+			redirchar = '<';
 			strptr += sizeof(char);
 			continue;
 		} else {
@@ -299,13 +313,23 @@ void CheckSyntax(char* srcbuf, syntax_t* syntaxstatus, error_t* serror) {
 		}
 
 		*syntaxstatus = OK;
+	}
 
+	strptr = srcbuf;
+	while(*strptr != '\0') {
+		if(*strptr != ' ' && *(strptr + 1) == '|'){
+			*serror = SYNTAX_ERR_ERROR;
+			*syntaxstatus = ERR;
+			return;
+		}
+		*syntaxstatus = OK;
+		strptr += 1;
 	}
 }
 
 void HandleError(error_t *errorin) {
 	if (errorin->eflag == 1) {
-		printf("ERROR: %s\n", errorin->msg);
+		printf("ERROR %d: %s\n", errorin->ecode,errorin->msg);
 	}
 }
 
@@ -426,5 +450,123 @@ void SetRedirs(sdata_t* sdata, error_t* serror, int cmdnum){
 		}
 		dup2(filedesc, 0); // stdin -> file
 		close(filedesc);
+	}
+}
+
+void SetUpAndExecute(sdata_t* sdata, error_t* serror, int currentcmd, int cmdsleft) {
+	if(cmdsleft == 0) {
+		return;
+	} else {
+		int pids[sdata->cmdscount];
+		int pipefds[sdata->cmdscount - 1][2];
+		int i;
+		int j;
+		int pstatus;
+		int status;
+
+		// Create the pipes
+		for(j = 0; j < (sdata->cmdscount - 1); j++) {
+			pstatus = pipe(pipefds[j]);
+			if(pstatus != 0) {
+				*serror = PIPE_ERROR;
+				return;
+			}
+		}
+
+		for(i = 0; i < sdata->cmdscount; i++) {
+			pids[i] = fork();
+			if(pids[i] == 0){ // Child
+
+				if (i == 0) { // First Command in piped seq
+					dup2(pipefds[i][1],1); // Redir stdout to pipe output
+					close(pipefds[i][0]);
+					int k;
+					for(k = 0; k < sdata->cmdscount-1; k++) {
+						if(k == i) continue;
+						close(pipefds[k][0]);
+						close(pipefds[k][1]);
+					}
+
+					if(sdata->cmds[i].has_stdin_redir) {
+						int filedesc;
+						filedesc = open(sdata->cmds[i].stdin_redir_fn, O_RDONLY);
+						if (filedesc < 0) {
+							*serror = REDIR_ERROR;
+						}
+						dup2(filedesc, 0); // stdin -> file
+						close(filedesc);
+					}
+
+				} else if (i == (sdata->cmdscount - 1)) { // Last Command in piped seq
+				    dup2(pipefds[i-1][0],0); // Redir stdin to pipe input
+                    close(pipefds[i-1][1]);
+                    int k;
+					for(k = 0; k < sdata->cmdscount-1; k++) {
+						if(k == (i-1)) continue;
+						close(pipefds[k][0]);
+						close(pipefds[k][1]);
+					}
+					if(sdata->cmds[i].has_stdout_redir) {
+						int filedesc;
+						filedesc = open(sdata->cmds[i].stdout_redir_fn, O_WRONLY |  O_CREAT, S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR);
+						if (filedesc < 0) {
+							*serror = REDIR_ERROR;
+						}
+						dup2(filedesc, 1); // stdout -> file
+						close(filedesc);
+
+					} 
+				} else { // Commands in the middle
+					dup2(pipefds[i][1],1); // Redir stdout to pipe output
+					dup2(pipefds[i-1][0],0); // Redir stdin to pipe input
+					int k;
+					for(k = 0; k < sdata->cmdscount-1; k++) {
+						if(k == (i-1)) { 
+							close(pipefds[k][1]);
+						} else if(k == i) {
+							close(pipefds[k][0]);
+						} else {
+							close(pipefds[k][0]);
+							close(pipefds[k][1]);
+						}
+					} 
+					                         
+				}
+
+				execvp(sdata->cmds[i].args[0], sdata->cmds[i].args);
+			} else { // Parent
+			}
+		}
+		
+		for(j = 0; j < (sdata->cmdscount - 1); j++) {
+			int status;
+			status = close(pipefds[j][0]);
+			status = close(pipefds[j][1]);
+		}
+
+		for(i = 0; i < sdata->cmdscount; i++) {
+			waitpid(pids[i],&status,0);
+		}
+	}
+}
+
+void CheckPipingRules(sdata_t* sdata, error_t* serror) {
+	int i;
+	if(sdata->cmdscount != 1) {
+		for(i = 0; i < sdata->cmdscount; i++) {
+			if(i == 0){
+				if(sdata->cmds[i].has_stdout_redir) {
+					*serror = SYNTAX_ERR_PIPING_ERROR;
+				}
+			} else if(i == sdata->cmdscount - 1) {
+				if(sdata->cmds[i].has_stdin_redir) {
+					*serror = SYNTAX_ERR_PIPING_ERROR;
+				}
+			} else {
+				if(sdata->cmds[i].has_stdin_redir || sdata->cmds[i].has_stdout_redir) {
+					*serror = SYNTAX_ERR_PIPING_ERROR;
+				}
+			}
+		}
 	}
 }
