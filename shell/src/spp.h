@@ -57,8 +57,8 @@ void usleep();
 #define SYNTAX_ERR_PIPING_MSG "Syntax Error - Illegal Pipe/Redirect Combination."
 #define SYNTAX_ERR_PIPING_ERROR (error_t) {1, 122, SYNTAX_ERR_PIPING_MSG, 0, 0}
 
-// #define EXIT_MSG "Goodbye!"
-// #define EXIT_ERROR (error_t) {0, 0, EXIT_MSG, 1, 0}
+#define EXIT_MSG "Goodbye!"
+#define EXIT_ERROR (error_t) {0, 0, EXIT_MSG, 1, 0}
 
 #define FORK_FAILED_MSG "Fork failed."
 #define FORK_FAILED_ERROR (error_t) {1, 201, FORK_FAILED_MSG, 0, 0}
@@ -168,5 +168,26 @@ void CheckPipingRules(sdata_t* sdata, error_t* serror);
 // -------------------------------------------------- Command Extractor State Machine Mechanics
 void ExtractCmds(sdata_t* sdata, error_t* serror);
 parserstate_t RunExtractor(parserstate_t statein, char** strptr, cmd_t* sdata, error_t* serror);
+
+// ------------------------------------------- Custom Command handlers + function pointers
+#define NUM_SPP_COMMANDS 3
+
+void SppChdir(sdata_t* sdata, error_t* serror);
+void SppExit(sdata_t* sdata, error_t* serror);
+void SppHelp(sdata_t* sdata, error_t* serror);
+
+const char* sppcommand_strings[] = {
+	"exit",
+	"cd",
+	"help"
+};
+
+void (*SppCommands[NUM_SPP_COMMANDS])(sdata_t *sdata, error_t* serror) = {
+	SppExit,
+	SppChdir,
+	SppHelp
+};
+
+
 
 #endif

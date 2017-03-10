@@ -183,18 +183,16 @@ sppstate_t SppIterate(sppstate_t statein, sdata_t* sdata, error_t* serror) {
 		//       
 		case(EXECUTE):{
 			debug_print("Executing...\n");
-			if (!strcmp(sdata->cmds[0].args[0], CD_CMD)) {
-				int cdstatus;
-				if(sdata->cmds[0].args[1] == '\0') {
-					*serror = CD_NO_PATH_ERROR;
-				} else {
-
-					cdstatus = chdir(sdata->cmds[0].args[1]);
-					if (cdstatus) {
-						*serror = CD_ERROR;
-					}
+			int i;
+			for(i = 0; i < NUM_SPP_COMMANDS; i++) {
+				int eq;
+				eq = strcmp(sdata->cmds[0].args[0], sppcommand_strings[i]);
+				if(eq == 0) {
+					SppCommands[i](sdata, serror);
 				}
-			} else if(sdata->cmdscount > 1) {
+			}
+
+			if(sdata->cmdscount > 1) {
 				SetUpAndExecute(sdata, serror, 0, sdata->cmdscount);
 			} else {
 				int pid;
@@ -330,6 +328,9 @@ void CheckSyntax(char* srcbuf, syntax_t* syntaxstatus, error_t* serror) {
 void HandleError(error_t *errorin) {
 	if (errorin->eflag == 1) {
 		printf("ERROR %d: %s\n", errorin->ecode,errorin->msg);
+	}
+	if (errorin->xflag == 1) {
+		exit(0);
 	}
 }
 
@@ -569,4 +570,28 @@ void CheckPipingRules(sdata_t* sdata, error_t* serror) {
 			}
 		}
 	}
+}
+
+void SppChdir(sdata_t* sdata, error_t* serror) {
+	int cdstatus;
+	if(sdata->cmds[0].args[1] == '\0') {
+		*serror = CD_NO_PATH_ERROR;
+	} else {
+
+		cdstatus = chdir(sdata->cmds[0].args[1]);
+		if (cdstatus) {
+			*serror = CD_ERROR;
+		}
+	}	
+}
+
+void SppExit(sdata_t* sdata, error_t* serror) {
+	*serror = EXIT_ERROR;
+}
+
+void SppHelp(sdata_t* sdata, error_t* serror) {
+	printf("SPP HELP\n");
+	printf("--------\n");
+	printf("Type commands! Other options are cd and exit\n");
+
 }
