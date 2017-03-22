@@ -3,7 +3,7 @@
 # Makefile for Quicksort
 # 
 
-CXXFLAGS = -std=c99 -g -pthread
+CXXFLAGS = -std=c99 -pthread -g
 CXX = gcc
 
 SRC_DIR = src
