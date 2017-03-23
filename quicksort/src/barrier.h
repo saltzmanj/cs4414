@@ -25,7 +25,7 @@ typedef struct {
 } barrier_t;
 
 void ResetBarrier(barrier_t* b, int max_count);
-void DecrementBarrier(barrier_t* b);
+void IncrementBarrier(barrier_t* b);
 int PollBarrier(barrier_t* b);
 
 #endif

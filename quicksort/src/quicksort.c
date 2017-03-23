@@ -216,7 +216,7 @@ void* LargerInt(void* params) {
 		params2->targetarray[params2->index] = params2->i1;
 	else
 		params2->targetarray[params2->index] = params2->i2;
-	DecrementBarrier(&qbarrier);
+	IncrementBarrier(&qbarrier);
 
 	debug_print("Largest Int of %d and %d was: %d\n", params2->i1, params2->i2, params2->targetarray[params2->index]);
 	pthread_exit(0);

@@ -6,7 +6,7 @@ void ResetBarrier(barrier_t* b, int max_count) {
 	b->barrier_max = max_count;
 }
 
-void DecrementBarrier(barrier_t* b) {
+void IncrementBarrier(barrier_t* b) {
 	
 	pthread_mutex_lock(&(b->barrier_mutex));
 	b->barrier_counter += 1;
