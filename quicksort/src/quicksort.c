@@ -173,12 +173,9 @@ qsrtstate_t SpawnTasks(STD_PARAMS) {
 	debug_print("Threads in this round: %d\n", sdata->currentthreads);
 	// Set number of compelted threads to 0
 	
-	pthread_mutex_lock(&sortmutex);
-	completed_threads = 0;
-	pthread_mutex_unlock(&sortmutex);
-	// Get the threads going by feeding them the ints
 	
 	int* answersarray = (int*) malloc(sizeof(int) * sdata->currentthreads);
+	ResetBarrier(&qbarrier, sdata->currentthreads);
 
 	int i;
 	LargerIntParams_t* params = (LargerIntParams_t*) malloc(sizeof(LargerIntParams_t) * sdata->currentthreads);
@@ -192,10 +189,7 @@ qsrtstate_t SpawnTasks(STD_PARAMS) {
 		pthread_create(&sdata->tids[i], NULL, LargerInt, &params[i]);
 	}
 
-	pthread_mutex_lock(&sortmutex);
-	while(completed_threads < sdata->currentthreads)
-		// debug_print("%d\n",completed_threads);
-	pthread_mutex_unlock(&sortmutex);
+	while(PollBarrier(&qbarrier));
 
 	for(i = 0; i < sdata->currentthreads; i++) {
 		sdata->numarray[i] = answersarray[i];
@@ -221,16 +215,12 @@ void* LargerInt(void* params) {
 		params2->targetarray[params2->index] = params2->i1;
 	else
 		params2->targetarray[params2->index] = params2->i2;
-	IncrementCompletedThreads();
+	DecrementBarrier(&qbarrier);
+
 	debug_print("Largest Int of %d and %d was: %d\n", params2->i1, params2->i2, params2->targetarray[params2->index]);
 	pthread_exit(0);
 }	
 
-void IncrementCompletedThreads() {
-	pthread_mutex_lock(&sortmutex);
-	completed_threads += 1;
-	pthread_mutex_unlock(&sortmutex);
-}
 
 int DistanceToPowerOfTwo(int n)
 {

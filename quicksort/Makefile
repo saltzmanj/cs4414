@@ -10,7 +10,7 @@ SRC_DIR = src
 TARGET_BIN = qsrt
 
 qsrt: $(SRC_DIR)/*.*
-	$(CXX) $(CXXFLAGS) $(SRC_DIR)/quicksort.c -o $(TARGET_BIN)
+	$(CXX) $(CXXFLAGS) $(SRC_DIR)/quicksort.c $(SRC_DIR)/barrier.c -o $(TARGET_BIN)
 	@echo "Quicksort Compiled"
 
 clean:

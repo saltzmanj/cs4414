@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-
+#include "barrier.h"
 /*----------  Parameters  ----------*/
 #define MAX_INT_COUNT 4096
 
@@ -30,8 +30,7 @@
 /*----------  Global Variables ----------*/
 
 char inputfn[256];
-pthread_mutex_t sortmutex = PTHREAD_MUTEX_INITIALIZER;
-int completed_threads;
+barrier_t qbarrier;
 
 /*---------- State Machine Fundamentals  ----------*/
 
@@ -92,8 +91,6 @@ void IncrementCompletedThreads();
 int DistanceToPowerOfTwo(int n);
 int FileIsEmpty(FILE* fileptr);
 /*----------  Sort Kernel(s)  ----------*/
-
-int (*kernel)(int, int);
 
 typedef struct {
 	int i1;
