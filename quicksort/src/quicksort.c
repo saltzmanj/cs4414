@@ -8,6 +8,7 @@
 #include "quicksort.h"
 
 int main(int argc, char* argv[]) {
+	// Copy the command line argument to the global filename buffer.
 	strcpy(inputfn, argv[1]);
 	RunQsrtStateMachine();
 	return 0;
