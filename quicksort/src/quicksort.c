@@ -190,6 +190,7 @@ qsrtstate_t SpawnTasks(STD_PARAMS) {
 	}
 
 	while(PollBarrier(&qbarrier));
+	pthread_cond_broadcast(&(qbarrier.barrier_active));
 
 	for(i = 0; i < sdata->currentthreads; i++) {
 		sdata->numarray[i] = answersarray[i];
@@ -200,7 +201,7 @@ qsrtstate_t SpawnTasks(STD_PARAMS) {
 		nextstate = OUTPUT_ANSWER_Q;
 	}
 	sdata->currentthreads = (sdata->currentthreads)/2;
-
+	
 	free(sdata->tids);
 	free(answersarray);
 	free(params);
@@ -218,6 +219,7 @@ void* LargerInt(void* params) {
 	DecrementBarrier(&qbarrier);
 
 	debug_print("Largest Int of %d and %d was: %d\n", params2->i1, params2->i2, params2->targetarray[params2->index]);
+	pthread_cond_wait(&(qbarrier.barrier_active), &(qbarrier.barrier_mutex));
 	pthread_exit(0);
 }	
 
