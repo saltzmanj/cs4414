@@ -1,0 +1,130 @@
+\hypertarget{classPhysicalMemory}{}\section{Physical\+Memory Class Reference}
+\label{classPhysicalMemory}\index{Physical\+Memory@{Physical\+Memory}}
+
+
+Imitates a physical memory.  
+
+
+
+
+{\ttfamily \#include $<$memory.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classPhysicalMemory_ad7fefaba61061c7339164836c6c02eaa}{Physical\+Memory} ()\hypertarget{classPhysicalMemory_ad7fefaba61061c7339164836c6c02eaa}{}\label{classPhysicalMemory_ad7fefaba61061c7339164836c6c02eaa}
+
+\begin{DoxyCompactList}\small\item\em Constructor. Initializes memory to zero. \end{DoxyCompactList}\item 
+int \hyperlink{classPhysicalMemory_a41ba2824ae9550b68036536d94ae8b32}{Find\+First\+Frame} ()
+\begin{DoxyCompactList}\small\item\em Finds the first available frame in the memory. \end{DoxyCompactList}\item 
+int \hyperlink{classPhysicalMemory_a42df1a804726f716ce4d3c2a87cda949}{Find\+L\+R\+U\+Frame} ()
+\begin{DoxyCompactList}\small\item\em Finds the L\+RU frame. \end{DoxyCompactList}\item 
+char \hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{Get\+Memory\+Contents} (int frame, int offset)
+\begin{DoxyCompactList}\small\item\em Gets the byte at position (f, d) \end{DoxyCompactList}\item 
+bool \hyperlink{classPhysicalMemory_acde26e332e20349baa6c409b88635258}{is\+Full} ()
+\begin{DoxyCompactList}\small\item\em Returns true/false if the memory is full/empty. \end{DoxyCompactList}\item 
+void \hyperlink{classPhysicalMemory_a70cb4ae5b23f04cb347ac93cc9fc1028}{Page\+In} (int frame, char pagein\mbox{[}F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE\mbox{]})
+\begin{DoxyCompactList}\small\item\em Pages a page into frame f. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Imitates a physical memory. 
+
+\subsection{Member Function Documentation}
+\index{Physical\+Memory@{Physical\+Memory}!Find\+First\+Frame@{Find\+First\+Frame}}
+\index{Find\+First\+Frame@{Find\+First\+Frame}!Physical\+Memory@{Physical\+Memory}}
+\subsubsection[{\texorpdfstring{Find\+First\+Frame()}{FindFirstFrame()}}]{\setlength{\rightskip}{0pt plus 5cm}int Physical\+Memory\+::\+Find\+First\+Frame (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classPhysicalMemory_a41ba2824ae9550b68036536d94ae8b32}{}\label{classPhysicalMemory_a41ba2824ae9550b68036536d94ae8b32}
+
+
+Finds the first available frame in the memory. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em Integer} & position of the first available frame. \\
+\hline
+\end{DoxyRetVals}
+\index{Physical\+Memory@{Physical\+Memory}!Find\+L\+R\+U\+Frame@{Find\+L\+R\+U\+Frame}}
+\index{Find\+L\+R\+U\+Frame@{Find\+L\+R\+U\+Frame}!Physical\+Memory@{Physical\+Memory}}
+\subsubsection[{\texorpdfstring{Find\+L\+R\+U\+Frame()}{FindLRUFrame()}}]{\setlength{\rightskip}{0pt plus 5cm}int Physical\+Memory\+::\+Find\+L\+R\+U\+Frame (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classPhysicalMemory_a42df1a804726f716ce4d3c2a87cda949}{}\label{classPhysicalMemory_a42df1a804726f716ce4d3c2a87cda949}
+
+
+Finds the L\+RU frame. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em Integer} & position of the least recently used frame \\
+\hline
+\end{DoxyRetVals}
+\index{Physical\+Memory@{Physical\+Memory}!Get\+Memory\+Contents@{Get\+Memory\+Contents}}
+\index{Get\+Memory\+Contents@{Get\+Memory\+Contents}!Physical\+Memory@{Physical\+Memory}}
+\subsubsection[{\texorpdfstring{Get\+Memory\+Contents(int frame, int offset)}{GetMemoryContents(int frame, int offset)}}]{\setlength{\rightskip}{0pt plus 5cm}char Physical\+Memory\+::\+Get\+Memory\+Contents (
+\begin{DoxyParamCaption}
+\item[{int}]{frame, }
+\item[{int}]{offset}
+\end{DoxyParamCaption}
+)}\hypertarget{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{}\label{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}
+
+
+Gets the byte at position (f, d) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em Frame} & \# \\
+\hline
+{\em Offset} & in bytes \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em Byte} & at (f, d) \\
+\hline
+\end{DoxyRetVals}
+\index{Physical\+Memory@{Physical\+Memory}!is\+Full@{is\+Full}}
+\index{is\+Full@{is\+Full}!Physical\+Memory@{Physical\+Memory}}
+\subsubsection[{\texorpdfstring{is\+Full()}{isFull()}}]{\setlength{\rightskip}{0pt plus 5cm}bool Physical\+Memory\+::is\+Full (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classPhysicalMemory_acde26e332e20349baa6c409b88635258}{}\label{classPhysicalMemory_acde26e332e20349baa6c409b88635258}
+
+
+Returns true/false if the memory is full/empty. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em True} & if memory is full, False otherwise \\
+\hline
+\end{DoxyRetVals}
+\index{Physical\+Memory@{Physical\+Memory}!Page\+In@{Page\+In}}
+\index{Page\+In@{Page\+In}!Physical\+Memory@{Physical\+Memory}}
+\subsubsection[{\texorpdfstring{Page\+In(int frame, char pagein[F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE])}{PageIn(int frame, char pagein[FRAME_SIZE])}}]{\setlength{\rightskip}{0pt plus 5cm}void Physical\+Memory\+::\+Page\+In (
+\begin{DoxyParamCaption}
+\item[{int}]{frame, }
+\item[{char}]{pagein\mbox{[}\+F\+R\+A\+M\+E\+\_\+\+S\+I\+Z\+E\mbox{]}}
+\end{DoxyParamCaption}
+)}\hypertarget{classPhysicalMemory_a70cb4ae5b23f04cb347ac93cc9fc1028}{}\label{classPhysicalMemory_a70cb4ae5b23f04cb347ac93cc9fc1028}
+
+
+Pages a page into frame f. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em Frame} & \# to page into \\
+\hline
+{\em Contents} & of the frame \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/memory.\+h\item 
+src/memory.\+cpp\end{DoxyCompactItemize}

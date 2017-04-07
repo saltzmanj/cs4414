@@ -1,0 +1,70 @@
+\hypertarget{classMemoryManager}{}\section{Memory\+Manager Class Reference}
+\label{classMemoryManager}\index{Memory\+Manager@{Memory\+Manager}}
+
+
+A memory management unit.  
+
+
+
+
+{\ttfamily \#include $<$memory.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classMemoryManager_ae925e8ad4d8fe6f0565e9d5729f59593}{Memory\+Manager} ()\hypertarget{classMemoryManager_ae925e8ad4d8fe6f0565e9d5729f59593}{}\label{classMemoryManager_ae925e8ad4d8fe6f0565e9d5729f59593}
+
+\begin{DoxyCompactList}\small\item\em Constructor. \end{DoxyCompactList}\item 
+char \hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{Read\+Memory} (int addr)
+\begin{DoxyCompactList}\small\item\em Read a value from memory. \end{DoxyCompactList}\item 
+int \hyperlink{classMemoryManager_a905ceff7ad39c05c2d965af613156547}{Translate\+Address} (int addr)
+\begin{DoxyCompactList}\small\item\em Translate a virual address (P, d) to a physical address (f, d) \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A memory management unit. 
+
+\subsection{Member Function Documentation}
+\index{Memory\+Manager@{Memory\+Manager}!Read\+Memory@{Read\+Memory}}
+\index{Read\+Memory@{Read\+Memory}!Memory\+Manager@{Memory\+Manager}}
+\subsubsection[{\texorpdfstring{Read\+Memory(int addr)}{ReadMemory(int addr)}}]{\setlength{\rightskip}{0pt plus 5cm}char Memory\+Manager\+::\+Read\+Memory (
+\begin{DoxyParamCaption}
+\item[{int}]{addr}
+\end{DoxyParamCaption}
+)}\hypertarget{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{}\label{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}
+
+
+Read a value from memory. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em Virtual} & address to read from. \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em value} & from mem\mbox{[}addr\mbox{]} \\
+\hline
+\end{DoxyRetVals}
+\index{Memory\+Manager@{Memory\+Manager}!Translate\+Address@{Translate\+Address}}
+\index{Translate\+Address@{Translate\+Address}!Memory\+Manager@{Memory\+Manager}}
+\subsubsection[{\texorpdfstring{Translate\+Address(int addr)}{TranslateAddress(int addr)}}]{\setlength{\rightskip}{0pt plus 5cm}int Memory\+Manager\+::\+Translate\+Address (
+\begin{DoxyParamCaption}
+\item[{int}]{addr}
+\end{DoxyParamCaption}
+)}\hypertarget{classMemoryManager_a905ceff7ad39c05c2d965af613156547}{}\label{classMemoryManager_a905ceff7ad39c05c2d965af613156547}
+
+
+Translate a virual address (P, d) to a physical address (f, d) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em Virtual} & address to translate. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/memory.\+h\item 
+src/memory.\+cpp\end{DoxyCompactItemize}
