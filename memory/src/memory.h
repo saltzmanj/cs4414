@@ -5,10 +5,12 @@
 #include <cstdio>
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
 #include <fstream>
 
 #define ENABLE_LRU
 #define FRAME_SIZE 256
+#define PAGE_SIZE 256
 #define N_FRAMES 8
 
 #define PAGE_TABLE_ENTRIES 16
@@ -38,12 +40,6 @@ public:
     */
     int FindFirstFrame();
     
-    /**
-        @brief Finds the LRU frame.
-        @retval Integer position of the least recently used frame
-    */
-    int FindLRUFrame();
-
     /**
         @brief Gets the byte at position (f, d)
 
@@ -85,10 +81,6 @@ private:
     */
     char occupied[n_frames];
 
-    /**
-        @brief An array of counters holding the number of 'recent' counts
-    */
-    uint32_t LRU_table[n_frames];
 };  
 
 /**
@@ -112,6 +104,12 @@ public:
     int LookupPage(int pagenum);
 
     /**
+        @brief Lookup a page number, but don't update LRU calculations
+        @param Page to Lookup
+        @retval Frame at 
+    */
+    int LookupPage_no_LRU(int pagenum);
+    /**
         @brief Set a page table entry to a given frame
     */
     void SetPageToFrame(int pagenum, int framenum);
@@ -123,15 +121,40 @@ public:
     */
     bool PageIsValid(int pagenum);
 
+    /**
+        @brief Print out the page table
+    */
+    void PrintPageTable();
+
+    /** 
+        @brief Get the LRU page
+        @retval The integer value of the LRU page
+    */
+
+    int GetLRUPage();
+
+    /**
+        @brief Update the LRU list.
+        @param The latest used element
+    */
+    void UpdateLRUList(int last_used);
+    
+    /**
+        @brief Page out the table.
+        @param The page to pageout.
+
+
+    */
+    void PageOut_table(int pagenum);
+
 private:
     static const int pgtable_entries = PAGE_TABLE_ENTRIES;
-    
     /**
         @brief Array functioning as the page table
     */
     int pgtable[PAGE_TABLE_ENTRIES];
     int valid[PAGE_TABLE_ENTRIES];
-
+    std::vector<int> LRU_list;
 };
 
 
@@ -173,6 +196,11 @@ public:
 
     */
     int TranslateAddress(int addr);
+
+    /**
+        @brief Print the page table.
+    */
+    void PrintPageTable();
 private:
     char* backend_store_filename;
 
