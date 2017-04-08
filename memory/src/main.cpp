@@ -1,18 +1,50 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cstdio>
 #include "memory.h"
+using namespace std;
+
+#define INPUT_FN "addresses2.txt"
 
 void RunPhysicalMemoryTests();
 void RunAddressConversionTests();
 void RunPagingTests();
 void RunFullMemoryTests();
 
+void ExecuteFromFile();
+
 int main() {
-	// RunPhysicalMemoryTests();
-	// RunAddressConversionTests();
-	// RunPagingTests();
-	RunFullMemoryTests();
+	ExecuteFromFile();
 	return 0;
+}
+
+void ExecuteFromFile() {
+	MemoryManager mmu;
+
+	std::ifstream infile(INPUT_FN);
+	std::string line;
+	while(std::getline(infile, line)) {
+		std::istringstream iss(line);
+		int addr;
+		
+		if(!(iss >> addr)){
+			cout << "I/O ERROR: Couldn't parse " << iss << endl;
+			exit(EXIT_FAILURE);
+		}
+		cout << "Dereferencing address {" << addr << "}..." << endl;
+		int contents = mmu.ReadMemory(addr);
+		cout << "... found data [" << contents << "]" << endl << endl;
+	}
+
+	cout << endl << "Contents of TLB:" << endl;
+	mmu.PrintTLB();
+	cout << endl << "Contents of Page Table:" << endl;
+	mmu.PrintPageTable();
+	cout << endl << "Contents of Page Table (Inverse):" << endl;
+	mmu.PrintInversePageTable();
+	cout << endl << "Memory Access Statistics: " << endl << endl;
+	mmu.PrintStats();
 }
 
 void RunFullMemoryTests() {
@@ -21,13 +53,16 @@ void RunFullMemoryTests() {
 	
 	for(int i = 1; i < 4095-255; i = i + 256) {
 		mmu.ReadMemory(i);
+		mmu.PrintAll();
 	}
 	mmu.ReadMemory(3555);
-	mmu.PrintPageTable();
+	mmu.PrintAll();
 	mmu.ReadMemory(5);
-	mmu.PrintPageTable();
+	mmu.PrintAll();
 	mmu.ReadMemory(2050);
-	mmu.PrintPageTable();
+	mmu.PrintAll();
+	mmu.ReadMemory(2050);
+	mmu.PrintAll();
 }
 
 void RunPagingTests() {

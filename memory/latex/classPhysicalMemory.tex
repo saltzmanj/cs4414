@@ -17,14 +17,14 @@ Imitates a physical memory.
 \begin{DoxyCompactList}\small\item\em Constructor. Initializes memory to zero. \end{DoxyCompactList}\item 
 int \hyperlink{classPhysicalMemory_a41ba2824ae9550b68036536d94ae8b32}{Find\+First\+Frame} ()
 \begin{DoxyCompactList}\small\item\em Finds the first available frame in the memory. \end{DoxyCompactList}\item 
-int \hyperlink{classPhysicalMemory_a42df1a804726f716ce4d3c2a87cda949}{Find\+L\+R\+U\+Frame} ()
-\begin{DoxyCompactList}\small\item\em Finds the L\+RU frame. \end{DoxyCompactList}\item 
 char \hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{Get\+Memory\+Contents} (int frame, int offset)
 \begin{DoxyCompactList}\small\item\em Gets the byte at position (f, d) \end{DoxyCompactList}\item 
 bool \hyperlink{classPhysicalMemory_acde26e332e20349baa6c409b88635258}{is\+Full} ()
 \begin{DoxyCompactList}\small\item\em Returns true/false if the memory is full/empty. \end{DoxyCompactList}\item 
 void \hyperlink{classPhysicalMemory_a70cb4ae5b23f04cb347ac93cc9fc1028}{Page\+In} (int frame, char pagein\mbox{[}F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE\mbox{]})
-\begin{DoxyCompactList}\small\item\em Pages a page into frame f. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Pages a page into frame f. \end{DoxyCompactList}\item 
+void \hyperlink{classPhysicalMemory_a6e1cf83f35ab25e879630783ebaecff3}{Page\+Out} (int frame)
+\begin{DoxyCompactList}\small\item\em Page out a frame. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -44,23 +44,7 @@ Finds the first available frame in the memory.
 
 
 \begin{DoxyRetVals}{Return values}
-{\em Integer} & position of the first available frame. \\
-\hline
-\end{DoxyRetVals}
-\index{Physical\+Memory@{Physical\+Memory}!Find\+L\+R\+U\+Frame@{Find\+L\+R\+U\+Frame}}
-\index{Find\+L\+R\+U\+Frame@{Find\+L\+R\+U\+Frame}!Physical\+Memory@{Physical\+Memory}}
-\subsubsection[{\texorpdfstring{Find\+L\+R\+U\+Frame()}{FindLRUFrame()}}]{\setlength{\rightskip}{0pt plus 5cm}int Physical\+Memory\+::\+Find\+L\+R\+U\+Frame (
-\begin{DoxyParamCaption}
-{}
-\end{DoxyParamCaption}
-)}\hypertarget{classPhysicalMemory_a42df1a804726f716ce4d3c2a87cda949}{}\label{classPhysicalMemory_a42df1a804726f716ce4d3c2a87cda949}
-
-
-Finds the L\+RU frame. 
-
-
-\begin{DoxyRetVals}{Return values}
-{\em Integer} & position of the least recently used frame \\
+{\em int} & Integer position of the first available frame. \\
 \hline
 \end{DoxyRetVals}
 \index{Physical\+Memory@{Physical\+Memory}!Get\+Memory\+Contents@{Get\+Memory\+Contents}}
@@ -77,14 +61,14 @@ Gets the byte at position (f, d)
 
 
 \begin{DoxyParams}{Parameters}
-{\em Frame} & \# \\
+{\em int} & Frame \# \\
 \hline
-{\em Offset} & in bytes \\
+{\em int} & Offset in bytes \\
 \hline
 \end{DoxyParams}
 
 \begin{DoxyRetVals}{Return values}
-{\em Byte} & at (f, d) \\
+{\em char} & Byte at (f, d) \\
 \hline
 \end{DoxyRetVals}
 \index{Physical\+Memory@{Physical\+Memory}!is\+Full@{is\+Full}}
@@ -100,7 +84,7 @@ Returns true/false if the memory is full/empty.
 
 
 \begin{DoxyRetVals}{Return values}
-{\em True} & if memory is full, False otherwise \\
+{\em bool} & True if memory is full, False otherwise \\
 \hline
 \end{DoxyRetVals}
 \index{Physical\+Memory@{Physical\+Memory}!Page\+In@{Page\+In}}
@@ -117,9 +101,25 @@ Pages a page into frame f.
 
 
 \begin{DoxyParams}{Parameters}
-{\em Frame} & \# to page into \\
+{\em int} & Frame \# to page into \\
 \hline
-{\em Contents} & of the frame \\
+{\em char\mbox{[}\+F\+R\+A\+M\+E\+\_\+\+S\+I\+Z\+E\mbox{]}} & Contents of the frame \\
+\hline
+\end{DoxyParams}
+\index{Physical\+Memory@{Physical\+Memory}!Page\+Out@{Page\+Out}}
+\index{Page\+Out@{Page\+Out}!Physical\+Memory@{Physical\+Memory}}
+\subsubsection[{\texorpdfstring{Page\+Out(int frame)}{PageOut(int frame)}}]{\setlength{\rightskip}{0pt plus 5cm}void Physical\+Memory\+::\+Page\+Out (
+\begin{DoxyParamCaption}
+\item[{int}]{frame}
+\end{DoxyParamCaption}
+)}\hypertarget{classPhysicalMemory_a6e1cf83f35ab25e879630783ebaecff3}{}\label{classPhysicalMemory_a6e1cf83f35ab25e879630783ebaecff3}
+
+
+Page out a frame. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & Frame to page out \\
 \hline
 \end{DoxyParams}
 

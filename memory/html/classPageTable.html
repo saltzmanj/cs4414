@@ -103,14 +103,56 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2590af90445c76b97420da95cf7210ec"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPageTable.html#a2590af90445c76b97420da95cf7210ec">LookupPage</a> (int pagenum)</td></tr>
 <tr class="memdesc:a2590af90445c76b97420da95cf7210ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lookup a page number and return the corresponding frame.  <a href="#a2590af90445c76b97420da95cf7210ec">More...</a><br /></td></tr>
 <tr class="separator:a2590af90445c76b97420da95cf7210ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3444b04644cb833bfd2a9b615704e6a1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPageTable.html#a3444b04644cb833bfd2a9b615704e6a1">LookupPage_no_LRU</a> (int pagenum)</td></tr>
+<tr class="memdesc:a3444b04644cb833bfd2a9b615704e6a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Lookup a page number, but don't update LRU calculations.  <a href="#a3444b04644cb833bfd2a9b615704e6a1">More...</a><br /></td></tr>
+<tr class="separator:a3444b04644cb833bfd2a9b615704e6a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac961a37f5dde09c3addce2fcd118f24d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac961a37f5dde09c3addce2fcd118f24d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPageTable.html#ac961a37f5dde09c3addce2fcd118f24d">SetPageToFrame</a> (int pagenum, int framenum)</td></tr>
 <tr class="memdesc:ac961a37f5dde09c3addce2fcd118f24d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a page table entry to a given frame. <br /></td></tr>
 <tr class="separator:ac961a37f5dde09c3addce2fcd118f24d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac43e4430873d7760eb7a25cd9a025f8c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPageTable.html#ac43e4430873d7760eb7a25cd9a025f8c">PageIsValid</a> (int pagenum)</td></tr>
+<tr class="memdesc:ac43e4430873d7760eb7a25cd9a025f8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines if a page is loaded into physical memory.  <a href="#ac43e4430873d7760eb7a25cd9a025f8c">More...</a><br /></td></tr>
+<tr class="separator:ac43e4430873d7760eb7a25cd9a025f8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab06580f0815ea97a303a09da860a670b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab06580f0815ea97a303a09da860a670b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPageTable.html#ab06580f0815ea97a303a09da860a670b">PrintPageTable</a> ()</td></tr>
+<tr class="memdesc:ab06580f0815ea97a303a09da860a670b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print out the page table. <br /></td></tr>
+<tr class="separator:ab06580f0815ea97a303a09da860a670b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab254ab5edbcf8734594b76e165584ff2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPageTable.html#ab254ab5edbcf8734594b76e165584ff2">GetLRUPage</a> ()</td></tr>
+<tr class="memdesc:ab254ab5edbcf8734594b76e165584ff2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the LRU page.  <a href="#ab254ab5edbcf8734594b76e165584ff2">More...</a><br /></td></tr>
+<tr class="separator:ab254ab5edbcf8734594b76e165584ff2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60e3389362244edc011676ddfc26af13"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPageTable.html#a60e3389362244edc011676ddfc26af13">UpdateLRUList</a> (int last_used)</td></tr>
+<tr class="memdesc:a60e3389362244edc011676ddfc26af13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the LRU list.  <a href="#a60e3389362244edc011676ddfc26af13">More...</a><br /></td></tr>
+<tr class="separator:a60e3389362244edc011676ddfc26af13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8c5d4a967b4d8d45e8d4e517f618f70"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPageTable.html#ae8c5d4a967b4d8d45e8d4e517f618f70">PageOut_table</a> (int pagenum)</td></tr>
+<tr class="memdesc:ae8c5d4a967b4d8d45e8d4e517f618f70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Page out the table.  <a href="#ae8c5d4a967b4d8d45e8d4e517f618f70">More...</a><br /></td></tr>
+<tr class="separator:ae8c5d4a967b4d8d45e8d4e517f618f70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Page table holding page/frame pairs. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ab254ab5edbcf8734594b76e165584ff2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int PageTable::GetLRUPage </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the LRU page. </p>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">int</td><td>The integer value of the LRU page </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a class="anchor" id="a2590af90445c76b97420da95cf7210ec"></a>
 <div class="memitem">
 <div class="memproto">
@@ -128,13 +170,121 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <p>Lookup a page number and return the corresponding frame. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">page</td><td></td></tr>
+    <tr><td class="paramname">int</td><td>page </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">frame</td><td></td></tr>
+    <tr><td class="paramname">int</td><td>frame </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a3444b04644cb833bfd2a9b615704e6a1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int PageTable::LookupPage_no_LRU </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>pagenum</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Lookup a page number, but don't update LRU calculations. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">int</td><td>Page to Lookup </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">int</td><td>Frame at </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ac43e4430873d7760eb7a25cd9a025f8c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool PageTable::PageIsValid </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>pagenum</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Determines if a page is loaded into physical memory. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">int</td><td>Page number to check </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">bool</td><td>True if in memory (hit), False if not (miss) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ae8c5d4a967b4d8d45e8d4e517f618f70"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PageTable::PageOut_table </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>pagenum</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Page out the table. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">int</td><td>The page to pageout. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a60e3389362244edc011676ddfc26af13"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PageTable::UpdateLRUList </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>last_used</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Update the LRU list. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">int</td><td>The latest used element </td></tr>
   </table>
   </dd>
 </dl>

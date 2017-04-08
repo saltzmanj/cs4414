@@ -104,8 +104,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a4a716fc46ee321ebb25bd54bcc9d0524"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a value from memory.  <a href="#a4a716fc46ee321ebb25bd54bcc9d0524">More...</a><br /></td></tr>
 <tr class="separator:a4a716fc46ee321ebb25bd54bcc9d0524"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a905ceff7ad39c05c2d965af613156547"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMemoryManager.html#a905ceff7ad39c05c2d965af613156547">TranslateAddress</a> (int addr)</td></tr>
-<tr class="memdesc:a905ceff7ad39c05c2d965af613156547"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translate a virual address (P, d) to a physical address (f, d)  <a href="#a905ceff7ad39c05c2d965af613156547">More...</a><br /></td></tr>
+<tr class="memdesc:a905ceff7ad39c05c2d965af613156547"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translate a virual address (P, d) to a physical address (f, d). Doesn't implement any p.  <a href="#a905ceff7ad39c05c2d965af613156547">More...</a><br /></td></tr>
 <tr class="separator:a905ceff7ad39c05c2d965af613156547"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7437efdc1ebd09895d451e2c521857a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa7437efdc1ebd09895d451e2c521857a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMemoryManager.html#aa7437efdc1ebd09895d451e2c521857a">PrintPageTable</a> ()</td></tr>
+<tr class="memdesc:aa7437efdc1ebd09895d451e2c521857a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print the page table. <br /></td></tr>
+<tr class="separator:aa7437efdc1ebd09895d451e2c521857a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A memory management unit. </p>
@@ -127,13 +131,13 @@ Public Member Functions</h2></td></tr>
 <p>Read a value from memory. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">Virtual</td><td>address to read from. </td></tr>
+    <tr><td class="paramname">int</td><td>Virtual address to read from. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">value</td><td>from mem[addr] </td></tr>
+    <tr><td class="paramname">char</td><td>value from mem[addr] </td></tr>
   </table>
   </dd>
 </dl>
@@ -154,10 +158,10 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Translate a virual address (P, d) to a physical address (f, d) </p>
+<p>Translate a virual address (P, d) to a physical address (f, d). Doesn't implement any p. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">Virtual</td><td>address to translate. </td></tr>
+    <tr><td class="paramname">int</td><td>Virtual address to translate. </td></tr>
   </table>
   </dd>
 </dl>

@@ -18,7 +18,10 @@ A memory management unit.
 char \hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{Read\+Memory} (int addr)
 \begin{DoxyCompactList}\small\item\em Read a value from memory. \end{DoxyCompactList}\item 
 int \hyperlink{classMemoryManager_a905ceff7ad39c05c2d965af613156547}{Translate\+Address} (int addr)
-\begin{DoxyCompactList}\small\item\em Translate a virual address (P, d) to a physical address (f, d) \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Translate a virual address (P, d) to a physical address (f, d). Doesn\textquotesingle{}t implement any p. \end{DoxyCompactList}\item 
+void \hyperlink{classMemoryManager_aa7437efdc1ebd09895d451e2c521857a}{Print\+Page\+Table} ()\hypertarget{classMemoryManager_aa7437efdc1ebd09895d451e2c521857a}{}\label{classMemoryManager_aa7437efdc1ebd09895d451e2c521857a}
+
+\begin{DoxyCompactList}\small\item\em Print the page table. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -38,12 +41,12 @@ Read a value from memory.
 
 
 \begin{DoxyParams}{Parameters}
-{\em Virtual} & address to read from. \\
+{\em int} & Virtual address to read from. \\
 \hline
 \end{DoxyParams}
 
 \begin{DoxyRetVals}{Return values}
-{\em value} & from mem\mbox{[}addr\mbox{]} \\
+{\em char} & value from mem\mbox{[}addr\mbox{]} \\
 \hline
 \end{DoxyRetVals}
 \index{Memory\+Manager@{Memory\+Manager}!Translate\+Address@{Translate\+Address}}
@@ -55,11 +58,11 @@ Read a value from memory.
 )}\hypertarget{classMemoryManager_a905ceff7ad39c05c2d965af613156547}{}\label{classMemoryManager_a905ceff7ad39c05c2d965af613156547}
 
 
-Translate a virual address (P, d) to a physical address (f, d) 
+Translate a virual address (P, d) to a physical address (f, d). Doesn\textquotesingle{}t implement any p. 
 
 
 \begin{DoxyParams}{Parameters}
-{\em Virtual} & address to translate. \\
+{\em int} & Virtual address to translate. \\
 \hline
 \end{DoxyParams}
 

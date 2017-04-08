@@ -1,0 +1,148 @@
+Dereferencing address {783}...
+ ---> Virtual address {783} contained in page {3} is not in the TLB
+ ---> Virtual address {783} contained in page {3} causes a page fault
+ ---> Page {3} paged into frame {0}
+ ---> TLB now has page {3}, frame {0} at index {0}
+... found data [3]
+
+Dereferencing address {2872}...
+ ---> Virtual address {2872} contained in page {11} is not in the TLB
+ ---> Virtual address {2872} contained in page {11} causes a page fault
+ ---> Page {11} paged into frame {1}
+ ---> TLB now has page {11}, frame {1} at index {1}
+... found data [0]
+
+Dereferencing address {787}...
+ ---> Virtual Address {787} contained in page {3}, frame {0} found at TLB Entry {0}
+... found data [4]
+
+Dereferencing address {2159}...
+ ---> Virtual address {2159} contained in page {8} is not in the TLB
+ ---> Virtual address {2159} contained in page {8} causes a page fault
+ ---> Page {8} paged into frame {2}
+ ---> TLB now has page {8}, frame {2} at index {2}
+... found data [27]
+
+Dereferencing address {1348}...
+ ---> Virtual address {1348} contained in page {5} is not in the TLB
+ ---> Virtual address {1348} contained in page {5} causes a page fault
+ ---> Page {5} paged into frame {3}
+ ---> TLB now has page {5}, frame {3} at index {3}
+... found data [0]
+
+Dereferencing address {3747}...
+ ---> Virtual address {3747} contained in page {14} is not in the TLB
+ ---> Virtual address {3747} contained in page {14} causes a page fault
+ ---> Page {14} paged into frame {4}
+ ---> TLB now has page {14}, frame {4} at index {0}
+... found data [40]
+
+Dereferencing address {2063}...
+ ---> Virtual Address {2063} contained in page {8}, frame {2} found at TLB Entry {2}
+... found data [3]
+
+Dereferencing address {612}...
+ ---> Virtual address {612} contained in page {2} is not in the TLB
+ ---> Virtual address {612} contained in page {2} causes a page fault
+ ---> Page {2} paged into frame {5}
+ ---> TLB now has page {2}, frame {5} at index {1}
+... found data [0]
+
+Dereferencing address {2419}...
+ ---> Virtual address {2419} contained in page {9} is not in the TLB
+ ---> Virtual address {2419} contained in page {9} causes a page fault
+ ---> Page {9} paged into frame {6}
+ ---> TLB now has page {9}, frame {6} at index {2}
+... found data [28]
+
+Dereferencing address {2637}...
+ ---> Virtual address {2637} contained in page {10} is not in the TLB
+ ---> Virtual address {2637} contained in page {10} causes a page fault
+ ---> Page {10} paged into frame {7}
+ ---> TLB now has page {10}, frame {7} at index {3}
+... found data [0]
+
+Dereferencing address {1329}...
+ ---> Virtual address {1329} contained in page {5} is not in the TLB
+ ---> Virtual address {1329} is contained in page {5}, frame {3}
+ ---> TLB now has page {5}, frame {3} at index {0}
+... found data [0]
+
+Dereferencing address {1223}...
+ ---> Virtual address {1223} contained in page {4} is not in the TLB
+ ---> Virtual address {1223} contained in page {4} causes a page fault
+ ---> Physical Memory Full! Taking corrective action...
+ ---> Paging out LRU page {11}
+ ---> Paging in page {4} to frame {1}
+ ---> TLB now has page {4}, frame {1} at index {1}
+... found data [49]
+
+Dereferencing address {1828}...
+ ---> Virtual address {1828} contained in page {7} is not in the TLB
+ ---> Virtual address {1828} contained in page {7} causes a page fault
+ ---> Physical Memory Full! Taking corrective action...
+ ---> Paging out LRU page {3}
+ ---> Paging in page {7} to frame {0}
+ ---> TLB now has page {7}, frame {0} at index {2}
+... found data [0]
+
+Dereferencing address {2314}...
+ ---> Virtual address {2314} contained in page {9} is not in the TLB
+ ---> Virtual address {2314} is contained in page {9}, frame {6}
+ ---> TLB now has page {9}, frame {6} at index {3}
+... found data [9]
+
+
+Contents of TLB:
+
+			TLB
+	[TLB #]    [Page #]    [Frame #]    [Valid?]
+	-------------------------------------------
+	0	     5	         3	        1
+	1	     4	         1	        1
+	2	     7	         0	        1
+	3	     9	         6	        1
+	FIFO List (top->bottom): {0}{1}
+
+Contents of Page Table:
+
+		PAGE TABLE
+	[Page #]  [Frame #]  [Valid?]
+	------------------------------
+	0	     -	        0
+	1	     -	        0
+	2	     5	        1
+	3	     -	        0
+	4	     1	        1
+	5	     3	        1
+	6	     -	        0
+	7	     0	        1
+	8	     2	        1
+	9	     6	        1
+	10	     7	        1
+	11	     -	        0
+	12	     -	        0
+	13	     -	        0
+	14	     4	        1
+	15	     -	        0
+	LRU List (old->new): {14}{8}{2}{10}{5}{4}{7}{9}
+
+Contents of Page Table (Inverse):
+
+		INVERSE PAGE TABLE
+	[Frame #]  [Page #]  [Valid?]
+	------------------------------
+	0	     7	        1
+	1	     4	        1
+	2	     8	        1
+	3	     5	        1
+	4	     14	        1
+	5	     2	        1
+	6	     9	        1
+	7	     10	        1
+
+
+Memory Access Statistics: 
+
+	Page Faults/Accesses: 	10/14
+	TLB Hits/Accesses: 		2/14

@@ -1,5 +1,5 @@
 #include "memory.h"
-
+using namespace std;
 /*=======================================
 =            Physical Memory            =
 =======================================*/
@@ -36,11 +36,11 @@ int PhysicalMemory::FindFirstFrame() {
 // Return the contents of memory at a give frame and offset
 char PhysicalMemory::GetMemoryContents(int frame, int offset) {
     if(frame >= n_frames) {
-        fprintf(stderr, "%s %d\n", "MEM_ERROR: invalid frame #: ",frame);
+        fprintf(stderr, "%s %d\n", "MEM_ERROR1: invalid frame #: ",frame);
         exit(EXIT_FAILURE);
     }
     if(offset >= frame_size) {
-        fprintf(stderr, "%s %d\n", "MEM_ERROR: invalid offset #: ",offset);
+        fprintf(stderr, "%s %d\n", "MEM_ERROR2: invalid offset #: ",offset);
         exit(EXIT_FAILURE);
     }
 
@@ -49,7 +49,7 @@ char PhysicalMemory::GetMemoryContents(int frame, int offset) {
 
 void PhysicalMemory::PageIn(int frame, char pagein[FRAME_SIZE]) {
     if(frame >= N_FRAMES) {
-        fprintf(stderr, "%s %d\n", "MEM_ERROR: invalid frame #: ", frame);
+        fprintf(stderr, "%s %d\n", "MEM_ERROR3: invalid frame #: ", frame);
         exit(EXIT_FAILURE);
     }
     for(int i = 0; i < FRAME_SIZE; i++) {
@@ -60,7 +60,7 @@ void PhysicalMemory::PageIn(int frame, char pagein[FRAME_SIZE]) {
 
 void PhysicalMemory::PageOut(int frame) {
     if(frame < 0 || frame >= N_FRAMES) {
-        fprintf(stderr, "MEM_ERROR: invalid frame # %d\n",frame);
+        fprintf(stderr, "MEM_ERROR4: invalid frame # %d\n",frame);
         exit(EXIT_FAILURE);
     }
     for(int i = 0; i < FRAME_SIZE; i++) {
@@ -69,6 +69,13 @@ void PhysicalMemory::PageOut(int frame) {
     occupied[frame] = 0;
 }
 /*=====  End of Physical Memory  ======*/
+
+
+
+
+
+
+
 
 /*==================================
 =            Page Table            =
@@ -132,7 +139,7 @@ bool PageTable::PageIsValid(int pagenum) {
 }
 
 void PageTable::PrintPageTable() {
-    printf("\tPAGE TABLE\n");
+    printf("\n\t\tPAGE TABLE\n");
     printf("\t%s  %s  %s\n","[Page #]", "[Frame #]", "[Valid?]");
     printf("\t%s","------------------------------\n");
     for(int i = 0; i < PAGE_TABLE_ENTRIES; i++) {
@@ -146,6 +153,22 @@ void PageTable::PrintPageTable() {
         printf("{%d}", LRU_list[i]);
     }
     printf("\n");
+}
+void PageTable::PrintInversePageTable() {
+    printf("\n\t\tINVERSE PAGE TABLE\n");
+    printf("\t%s  %s  %s\n","[Frame #]", "[Page #]", "[Valid?]");
+    printf("\t%s","------------------------------\n");
+    for(int i = 0; i < N_FRAMES; i++) { // i is the frame number
+        for(int j = 0; j < PAGE_TABLE_ENTRIES; j++) { // j is the page number
+            if(i == pgtable[j] && valid[j]) {
+                if (valid[i] != -1)
+                     printf("\t%d\t     %d\t        %d\n", i, j, valid[j]);
+                else
+                    printf("\t%d\t     %s\t        %d\n", i, "-", valid[j]);
+            }
+        }
+    }
+    printf("\n");    
 }
 
 void PageTable::UpdateLRUList(int last_used) {
@@ -161,9 +184,103 @@ void PageTable::UpdateLRUList(int last_used) {
 
 int PageTable::GetLRUPage() {
     return LRU_list[0];
-
 }
+
 /*=====  End of Page Table  ======*/
+
+
+
+
+/*==================================================
+=            TranslationLookasideBuffer            =
+==================================================*/
+
+TranslationLookasideBuffer::TranslationLookasideBuffer() {
+    for(int i = 0; i < TLB_ENTRIES; i++) {
+        pagecol[i] = -1;
+        framecol[i] = -1;
+        occupied[i] = 0;
+    }
+}
+
+bool TranslationLookasideBuffer::isFull() {
+    for(int i = 0; i < TLB_ENTRIES; i++) {
+        if(occupied[i] == 0) return false;
+    }
+    return true;
+}
+
+TLBReturnData_t TranslationLookasideBuffer::LookupTLBFrame(int pagenum) {
+    TLBReturnData_t tlbdata;
+    for(int i = 0; i < TLB_ENTRIES; i++) {
+        if(pagecol[i] == pagenum) {
+            tlbdata.frame = framecol[i];
+            tlbdata.entry = i;
+            return tlbdata;
+        }
+    }
+    tlbdata.frame = -1;
+    tlbdata.entry = -1;
+    return tlbdata;
+}
+
+int TranslationLookasideBuffer::UpdateTLB(int pagenum, int framenum) {
+    bool page_in_tlb = false;
+    int i;
+    for(i = 0; i < TLB_ENTRIES; i++) {
+        page_in_tlb = (pagecol[i] == pagenum);
+        if(page_in_tlb) break;
+    }
+    if(page_in_tlb) {
+        return i;
+    } else if(!this->isFull()) {
+        int next_empty = -1;
+        for(int i = 0; i < TLB_ENTRIES; i++) {
+            if (occupied[i] == 0) {
+                next_empty = i;
+                break;
+            }
+        }
+        pagecol[next_empty] = pagenum;
+        framecol[next_empty] = framenum;
+        occupied[next_empty] = 1;
+        FIFO_tlb.push(next_empty);
+        return next_empty;
+    } else if(!page_in_tlb) {
+        int index_to_replace = FIFO_tlb.front();
+        FIFO_tlb.pop();
+        pagecol[index_to_replace] = pagenum;
+        framecol[index_to_replace] = framenum;
+        FIFO_tlb.push(index_to_replace);
+        return index_to_replace;
+    }
+    return -1;
+}
+
+
+void TranslationLookasideBuffer::PrintTLB() {
+    printf("\n\t\t\tTLB\n");
+    printf("\t%s    %s    %s    %s\n","[TLB #]", "[Page #]","[Frame #]", "[Valid?]");
+    printf("\t%s","-------------------------------------------\n");
+    for(int i = 0; i < TLB_ENTRIES; i++) {
+        if (pagecol[i] != -1)
+             printf("\t%d\t     %d\t         %d\t        %d\n", i, pagecol[i], framecol[i],occupied[i]);
+        else
+            printf("\t%d\t     %s\t         %s\t        %d\n", i, "-", "-",occupied[i]);
+    }
+    printf("\tFIFO List (top->bottom): ");
+    std::queue<int> qcopy = FIFO_tlb;
+    for(uint32_t i = 0; i < qcopy.size(); i++) {
+        printf("{%d}", qcopy.front());
+        qcopy.pop();
+    }
+    printf("\n");
+}
+/*=====  End of TranslationLookasideBuffer  ======*/
+
+
+
+
 
 
 
@@ -174,6 +291,9 @@ int PageTable::GetLRUPage() {
 MemoryManager::MemoryManager() {
     backend_store_filename = (char*) malloc(sizeof(char) * BACKEND_FN_CHARS);
     strcpy(backend_store_filename, BACKEND_FN);
+    total_accesses = 0;
+    page_faults = 0;
+    tlb_hitrate = 0;
 }
 
 char MemoryManager::ReadMemory(int addr) {
@@ -181,19 +301,38 @@ char MemoryManager::ReadMemory(int addr) {
         fprintf(stderr, "SEGFAULT at address %d\n", addr);
         exit(EXIT_FAILURE);
     }
-
+    total_accesses += 1;
     MemoryPairAddress_t mempair_virtual = ConvertAddressFormat(addr);
 
-    if (page_table.PageIsValid(mempair_virtual.P)) {
+    TLBReturnData_t frame_from_tlb = tlb.LookupTLBFrame(mempair_virtual.P);
+  
+    if(frame_from_tlb.frame != -1 ){ 
+        // If the frame was found in the TLB
+        //      1. Get the contents in memory
+        //      2. Update the page table LRU
+        tlb_hitrate += 1;
+        printf(" ---> Virtual Address {%d} contained in page {%d}, frame {%d} found at TLB Entry {%d}\n",addr, mempair_virtual.P, frame_from_tlb.entry, frame_from_tlb.frame);
+        page_table.UpdateLRUList(mempair_virtual.P);
+        char contents = physical_memory.GetMemoryContents(frame_from_tlb.frame, mempair_virtual.d);
+        return contents;
+
+    } else if (page_table.PageIsValid(mempair_virtual.P)) {
+        printf(" ---> Virtual address {%d} contained in page {%d} is not in the TLB\n",addr, mempair_virtual.P);
         // If the page is valid:
         //      1. Lookup the frame in the page table
         //      2. Access the memory at (frame, d)
+        //      3. Update the TLB
+
         int frame = page_table.LookupPage(mempair_virtual.P);
         char contents = physical_memory.GetMemoryContents(frame, mempair_virtual.d);
-        printf("Virtual address {%d} is contained in page {%d}, frame {%d}\n", addr, mempair_virtual.P, frame);
+        printf(" ---> Virtual address {%d} is contained in page {%d}, frame {%d}\n", addr, mempair_virtual.P, frame);
+        int tlbval = tlb.UpdateTLB(mempair_virtual.P, frame);
+        printf(" ---> TLB now has page {%d}, frame {%d} at index {%d}\n", mempair_virtual.P, frame, tlbval);
         return contents;
     } else {
-        printf("Virtual address {%d} contained in page {%d} causes a page fault\n",addr, mempair_virtual.P);
+        printf(" ---> Virtual address {%d} contained in page {%d} is not in the TLB\n",addr, mempair_virtual.P);
+        printf(" ---> Virtual address {%d} contained in page {%d} causes a page fault\n",addr, mempair_virtual.P);
+        page_faults += 1;
         if(physical_memory.isFull()) {
             printf(" ---> Physical Memory Full! Taking corrective action...\n");
             // If the page is invalid and the memory is full:
@@ -202,7 +341,7 @@ char MemoryManager::ReadMemory(int addr) {
             //      3. PageOut() the page
             //      4. PageIn() the desired page in the right frame
             //      5. Update the page table and LRU list
-            
+            //      6. Update the TLB
             // (1) Load page from memory
             
             char* page_to_load = new char[PAGE_SIZE];
@@ -223,14 +362,17 @@ char MemoryManager::ReadMemory(int addr) {
             page_table.SetPageToFrame(mempair_virtual.P, target_frame);
             printf(" ---> Paging in page {%d} to frame {%d}\n", mempair_virtual.P, target_frame);
             page_table.UpdateLRUList(mempair_virtual.P);
-            
+            int tlbval = tlb.UpdateTLB(mempair_virtual.P, target_frame);
+            printf(" ---> TLB now has page {%d}, frame {%d} at index {%d}\n", mempair_virtual.P, target_frame, tlbval);
             delete[] page_to_load;
+            return physical_memory.GetMemoryContents(target_frame, mempair_virtual.d);
         } else {
             // If the page is invalid and the memory isn't full:
             //      1. Load the page from the memory file
             //      2. Find the first avaialable frame
             //      3. PageIn() the data
             //      4. Update the page table for this page with the frame found in (2)
+            //      5. Update the TLB
             
             // (1): Load page from memory
             char* page_to_load = new char[PAGE_SIZE];
@@ -246,12 +388,15 @@ char MemoryManager::ReadMemory(int addr) {
             // (4): Update the page table
             page_table.SetPageToFrame(mempair_virtual.P, available_frame);
             page_table.UpdateLRUList(mempair_virtual.P);
+            int tlbval = tlb.UpdateTLB(mempair_virtual.P, available_frame);
+            printf(" ---> TLB now has page {%d}, frame {%d} at index {%d}\n", mempair_virtual.P, available_frame, tlbval);
             delete[] page_to_load;
             return physical_memory.GetMemoryContents(available_frame, mempair_virtual.d);
 
         }
     }
-
+    cout << "Memory Manager control flow failed (?!)" << endl;
+    exit(EXIT_FAILURE);
     return 0xAA;
 }
 
@@ -279,7 +424,35 @@ void MemoryManager::FileSeek(int fpage, char* dest) {
 void MemoryManager::PrintPageTable() {
     page_table.PrintPageTable();
 }
+
+void MemoryManager::PrintTLB() {
+    tlb.PrintTLB();
+}
+
+void MemoryManager::PrintAll() {
+    this->PrintTLB();
+    this->PrintPageTable();
+}
+
+void MemoryManager::PrintInversePageTable(){
+    page_table.PrintInversePageTable();
+}
+
+void MemoryManager::PrintStats() {
+    cout << "\t" << "Page Faults/Accesses: \t" << page_faults << "/" << total_accesses << endl;
+    cout << "\t" << "TLB Hits/Accesses: \t\t" << tlb_hitrate << "/" << total_accesses << endl;
+}
 /*=====  End of MemoryManager  ======*/
+
+
+
+
+
+
+/*========================================
+=            Helper Functions            =
+========================================*/
+
 
 MemoryPairAddress_t ConvertAddressFormat(int addr) {
     MemoryPairAddress_t mempair;
@@ -292,3 +465,5 @@ MemoryPairAddress_t ConvertAddressFormat(int addr) {
 void PrintMemoryPairAddress(MemoryPairAddress_t mempair) {
     printf("(%d,%d)\n", mempair.P, mempair.d);
 }
+
+/*=====  End of Helper Functions  ======*/

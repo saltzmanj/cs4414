@@ -17,15 +17,44 @@ Page table holding page/frame pairs.
 \begin{DoxyCompactList}\small\item\em Constructor for \hyperlink{classPageTable}{Page\+Table} object. \end{DoxyCompactList}\item 
 int \hyperlink{classPageTable_a2590af90445c76b97420da95cf7210ec}{Lookup\+Page} (int pagenum)
 \begin{DoxyCompactList}\small\item\em Lookup a page number and return the corresponding frame. \end{DoxyCompactList}\item 
+int \hyperlink{classPageTable_a3444b04644cb833bfd2a9b615704e6a1}{Lookup\+Page\+\_\+no\+\_\+\+L\+RU} (int pagenum)
+\begin{DoxyCompactList}\small\item\em Lookup a page number, but don\textquotesingle{}t update L\+RU calculations. \end{DoxyCompactList}\item 
 void \hyperlink{classPageTable_ac961a37f5dde09c3addce2fcd118f24d}{Set\+Page\+To\+Frame} (int pagenum, int framenum)\hypertarget{classPageTable_ac961a37f5dde09c3addce2fcd118f24d}{}\label{classPageTable_ac961a37f5dde09c3addce2fcd118f24d}
 
-\begin{DoxyCompactList}\small\item\em Set a page table entry to a given frame. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Set a page table entry to a given frame. \end{DoxyCompactList}\item 
+bool \hyperlink{classPageTable_ac43e4430873d7760eb7a25cd9a025f8c}{Page\+Is\+Valid} (int pagenum)
+\begin{DoxyCompactList}\small\item\em Determines if a page is loaded into physical memory. \end{DoxyCompactList}\item 
+void \hyperlink{classPageTable_ab06580f0815ea97a303a09da860a670b}{Print\+Page\+Table} ()\hypertarget{classPageTable_ab06580f0815ea97a303a09da860a670b}{}\label{classPageTable_ab06580f0815ea97a303a09da860a670b}
+
+\begin{DoxyCompactList}\small\item\em Print out the page table. \end{DoxyCompactList}\item 
+int \hyperlink{classPageTable_ab254ab5edbcf8734594b76e165584ff2}{Get\+L\+R\+U\+Page} ()
+\begin{DoxyCompactList}\small\item\em Get the L\+RU page. \end{DoxyCompactList}\item 
+void \hyperlink{classPageTable_a60e3389362244edc011676ddfc26af13}{Update\+L\+R\+U\+List} (int last\+\_\+used)
+\begin{DoxyCompactList}\small\item\em Update the L\+RU list. \end{DoxyCompactList}\item 
+void \hyperlink{classPageTable_ae8c5d4a967b4d8d45e8d4e517f618f70}{Page\+Out\+\_\+table} (int pagenum)
+\begin{DoxyCompactList}\small\item\em Page out the table. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
 Page table holding page/frame pairs. 
 
 \subsection{Member Function Documentation}
+\index{Page\+Table@{Page\+Table}!Get\+L\+R\+U\+Page@{Get\+L\+R\+U\+Page}}
+\index{Get\+L\+R\+U\+Page@{Get\+L\+R\+U\+Page}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Get\+L\+R\+U\+Page()}{GetLRUPage()}}]{\setlength{\rightskip}{0pt plus 5cm}int Page\+Table\+::\+Get\+L\+R\+U\+Page (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_ab254ab5edbcf8734594b76e165584ff2}{}\label{classPageTable_ab254ab5edbcf8734594b76e165584ff2}
+
+
+Get the L\+RU page. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em int} & The integer value of the L\+RU page \\
+\hline
+\end{DoxyRetVals}
 \index{Page\+Table@{Page\+Table}!Lookup\+Page@{Lookup\+Page}}
 \index{Lookup\+Page@{Lookup\+Page}!Page\+Table@{Page\+Table}}
 \subsubsection[{\texorpdfstring{Lookup\+Page(int pagenum)}{LookupPage(int pagenum)}}]{\setlength{\rightskip}{0pt plus 5cm}int Page\+Table\+::\+Lookup\+Page (
@@ -39,14 +68,88 @@ Lookup a page number and return the corresponding frame.
 
 
 \begin{DoxyParams}{Parameters}
-{\em page} & \\
+{\em int} & page \\
 \hline
 \end{DoxyParams}
 
 \begin{DoxyRetVals}{Return values}
-{\em frame} & \\
+{\em int} & frame \\
 \hline
 \end{DoxyRetVals}
+\index{Page\+Table@{Page\+Table}!Lookup\+Page\+\_\+no\+\_\+\+L\+RU@{Lookup\+Page\+\_\+no\+\_\+\+L\+RU}}
+\index{Lookup\+Page\+\_\+no\+\_\+\+L\+RU@{Lookup\+Page\+\_\+no\+\_\+\+L\+RU}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Lookup\+Page\+\_\+no\+\_\+\+L\+R\+U(int pagenum)}{LookupPage_no_LRU(int pagenum)}}]{\setlength{\rightskip}{0pt plus 5cm}int Page\+Table\+::\+Lookup\+Page\+\_\+no\+\_\+\+L\+RU (
+\begin{DoxyParamCaption}
+\item[{int}]{pagenum}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_a3444b04644cb833bfd2a9b615704e6a1}{}\label{classPageTable_a3444b04644cb833bfd2a9b615704e6a1}
+
+
+Lookup a page number, but don\textquotesingle{}t update L\+RU calculations. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & Page to Lookup \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em int} & Frame at \\
+\hline
+\end{DoxyRetVals}
+\index{Page\+Table@{Page\+Table}!Page\+Is\+Valid@{Page\+Is\+Valid}}
+\index{Page\+Is\+Valid@{Page\+Is\+Valid}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Page\+Is\+Valid(int pagenum)}{PageIsValid(int pagenum)}}]{\setlength{\rightskip}{0pt plus 5cm}bool Page\+Table\+::\+Page\+Is\+Valid (
+\begin{DoxyParamCaption}
+\item[{int}]{pagenum}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_ac43e4430873d7760eb7a25cd9a025f8c}{}\label{classPageTable_ac43e4430873d7760eb7a25cd9a025f8c}
+
+
+Determines if a page is loaded into physical memory. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & Page number to check \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em bool} & True if in memory (hit), False if not (miss) \\
+\hline
+\end{DoxyRetVals}
+\index{Page\+Table@{Page\+Table}!Page\+Out\+\_\+table@{Page\+Out\+\_\+table}}
+\index{Page\+Out\+\_\+table@{Page\+Out\+\_\+table}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Page\+Out\+\_\+table(int pagenum)}{PageOut_table(int pagenum)}}]{\setlength{\rightskip}{0pt plus 5cm}void Page\+Table\+::\+Page\+Out\+\_\+table (
+\begin{DoxyParamCaption}
+\item[{int}]{pagenum}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_ae8c5d4a967b4d8d45e8d4e517f618f70}{}\label{classPageTable_ae8c5d4a967b4d8d45e8d4e517f618f70}
+
+
+Page out the table. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & The page to pageout. \\
+\hline
+\end{DoxyParams}
+\index{Page\+Table@{Page\+Table}!Update\+L\+R\+U\+List@{Update\+L\+R\+U\+List}}
+\index{Update\+L\+R\+U\+List@{Update\+L\+R\+U\+List}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Update\+L\+R\+U\+List(int last\+\_\+used)}{UpdateLRUList(int last_used)}}]{\setlength{\rightskip}{0pt plus 5cm}void Page\+Table\+::\+Update\+L\+R\+U\+List (
+\begin{DoxyParamCaption}
+\item[{int}]{last\+\_\+used}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_a60e3389362244edc011676ddfc26af13}{}\label{classPageTable_a60e3389362244edc011676ddfc26af13}
+
+
+Update the L\+RU list. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & The latest used element \\
+\hline
+\end{DoxyParams}
 
 
 The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
