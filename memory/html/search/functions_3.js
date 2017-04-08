@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['lookuppage',['LookupPage',['../classPageTable.html#a2590af90445c76b97420da95cf7210ec',1,'PageTable']]],
-  ['lookuppage_5fno_5flru',['LookupPage_no_LRU',['../classPageTable.html#a3444b04644cb833bfd2a9b615704e6a1',1,'PageTable']]]
+  ['getlrupage',['GetLRUPage',['../classPageTable.html#ab254ab5edbcf8734594b76e165584ff2',1,'PageTable']]],
+  ['getmemorycontents',['GetMemoryContents',['../classPhysicalMemory.html#a2d6b5c45f2377838a76e58b2c083610a',1,'PhysicalMemory']]]
 ];

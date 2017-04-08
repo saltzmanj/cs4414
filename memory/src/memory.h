@@ -224,7 +224,7 @@ public:
      * @brief Update the TLB with a new page/frame combination
      * 
      * @param int Page number to cache
-     * @param framenum Frame number to cache
+     * @param int Frame number to cache
      * @retval int The index into which page/frame combo was hashed
      */
     int UpdateTLB(int pagenum, int framenum);

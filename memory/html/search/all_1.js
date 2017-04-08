@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['getlrupage',['GetLRUPage',['../classPageTable.html#ab254ab5edbcf8734594b76e165584ff2',1,'PageTable']]],
-  ['getmemorycontents',['GetMemoryContents',['../classPhysicalMemory.html#a2d6b5c45f2377838a76e58b2c083610a',1,'PhysicalMemory']]]
+  ['convertaddressformat',['ConvertAddressFormat',['../memory_8cpp.html#a90bdb77a86b4a78c22b50e250b77d9ad',1,'ConvertAddressFormat(int addr):&#160;memory.cpp'],['../memory_8h.html#a90bdb77a86b4a78c22b50e250b77d9ad',1,'ConvertAddressFormat(int addr):&#160;memory.cpp']]]
 ];

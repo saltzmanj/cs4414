@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['lookuppage',['LookupPage',['../classPageTable.html#a2590af90445c76b97420da95cf7210ec',1,'PageTable']]],
-  ['lookuppage_5fno_5flru',['LookupPage_no_LRU',['../classPageTable.html#a3444b04644cb833bfd2a9b615704e6a1',1,'PageTable']]]
+  ['enable_5flru',['ENABLE_LRU',['../memory_8h.html#af6463c112a252cbb29636eef8ae9e6dc',1,'memory.h']]],
+  ['entry',['entry',['../structTLBReturnData__t.html#a58914c8a985e6cdb2f48a56ab41a6985',1,'TLBReturnData_t']]],
+  ['executefromfile',['ExecuteFromFile',['../main_8cpp.html#a42ef34a387e48b6661322f8f1d6da730',1,'main.cpp']]]
 ];

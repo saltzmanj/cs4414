@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['getlrupage',['GetLRUPage',['../classPageTable.html#ab254ab5edbcf8734594b76e165584ff2',1,'PageTable']]],
-  ['getmemorycontents',['GetMemoryContents',['../classPhysicalMemory.html#a2d6b5c45f2377838a76e58b2c083610a',1,'PhysicalMemory']]]
+  ['executefromfile',['ExecuteFromFile',['../main_8cpp.html#a42ef34a387e48b6661322f8f1d6da730',1,'main.cpp']]]
 ];
