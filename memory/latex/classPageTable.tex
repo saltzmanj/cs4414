@@ -1,0 +1,259 @@
+\hypertarget{classPageTable}{}\section{Page\+Table Class Reference}
+\label{classPageTable}\index{Page\+Table@{Page\+Table}}
+
+
+Page table holding page/frame pairs.  
+
+
+
+
+{\ttfamily \#include $<$memory.\+h$>$}
+
+
+
+Collaboration diagram for Page\+Table\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=211pt]{classPageTable__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{classPageTable_a75c92e794fd3f5397d2499d54dac22c9}{Page\+Table} ()
+\begin{DoxyCompactList}\small\item\em Constructor for \hyperlink{classPageTable}{Page\+Table} object. \end{DoxyCompactList}\item 
+int \hyperlink{classPageTable_a2590af90445c76b97420da95cf7210ec}{Lookup\+Page} (int pagenum)
+\begin{DoxyCompactList}\small\item\em Lookup a page number and return the corresponding frame. \end{DoxyCompactList}\item 
+int \hyperlink{classPageTable_a3444b04644cb833bfd2a9b615704e6a1}{Lookup\+Page\+\_\+no\+\_\+\+L\+RU} (int pagenum)
+\begin{DoxyCompactList}\small\item\em Lookup a page number, but don\textquotesingle{}t update L\+RU calculations. \end{DoxyCompactList}\item 
+void \hyperlink{classPageTable_ac961a37f5dde09c3addce2fcd118f24d}{Set\+Page\+To\+Frame} (int pagenum, int framenum)
+\begin{DoxyCompactList}\small\item\em Set a page table entry to a given frame. \end{DoxyCompactList}\item 
+bool \hyperlink{classPageTable_ac43e4430873d7760eb7a25cd9a025f8c}{Page\+Is\+Valid} (int pagenum)
+\begin{DoxyCompactList}\small\item\em Determines if a page is loaded into physical memory. \end{DoxyCompactList}\item 
+void \hyperlink{classPageTable_ab06580f0815ea97a303a09da860a670b}{Print\+Page\+Table} ()
+\begin{DoxyCompactList}\small\item\em Print out the page table. \end{DoxyCompactList}\item 
+void \hyperlink{classPageTable_a8b7ab1d3a811eabd0e2862bc9a4ae1f7}{Print\+Inverse\+Page\+Table} ()
+\begin{DoxyCompactList}\small\item\em Print the Inverse Page table. \end{DoxyCompactList}\item 
+int \hyperlink{classPageTable_ab254ab5edbcf8734594b76e165584ff2}{Get\+L\+R\+U\+Page} ()
+\begin{DoxyCompactList}\small\item\em Get the L\+RU page. \end{DoxyCompactList}\item 
+void \hyperlink{classPageTable_a60e3389362244edc011676ddfc26af13}{Update\+L\+R\+U\+List} (int last\+\_\+used)
+\begin{DoxyCompactList}\small\item\em Update the L\+RU list. \end{DoxyCompactList}\item 
+void \hyperlink{classPageTable_ae8c5d4a967b4d8d45e8d4e517f618f70}{Page\+Out\+\_\+table} (int pagenum)
+\begin{DoxyCompactList}\small\item\em Page out the table. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Page table holding page/frame pairs. 
+
+Definition at line \hyperlink{memory_8h_source_l00102}{102} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\index{Page\+Table@{Page\+Table}!Page\+Table@{Page\+Table}}
+\index{Page\+Table@{Page\+Table}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Page\+Table()}{PageTable()}}]{\setlength{\rightskip}{0pt plus 5cm}Page\+Table\+::\+Page\+Table (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_a75c92e794fd3f5397d2499d54dac22c9}{}\label{classPageTable_a75c92e794fd3f5397d2499d54dac22c9}
+
+
+Constructor for \hyperlink{classPageTable}{Page\+Table} object. 
+
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00085}{85} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+
+
+\subsection{Member Function Documentation}
+\index{Page\+Table@{Page\+Table}!Get\+L\+R\+U\+Page@{Get\+L\+R\+U\+Page}}
+\index{Get\+L\+R\+U\+Page@{Get\+L\+R\+U\+Page}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Get\+L\+R\+U\+Page()}{GetLRUPage()}}]{\setlength{\rightskip}{0pt plus 5cm}int Page\+Table\+::\+Get\+L\+R\+U\+Page (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_ab254ab5edbcf8734594b76e165584ff2}{}\label{classPageTable_ab254ab5edbcf8734594b76e165584ff2}
+
+
+Get the L\+RU page. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em int} & The integer value of the L\+RU page \\
+\hline
+\end{DoxyRetVals}
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00185}{185} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+\index{Page\+Table@{Page\+Table}!Lookup\+Page@{Lookup\+Page}}
+\index{Lookup\+Page@{Lookup\+Page}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Lookup\+Page(int pagenum)}{LookupPage(int pagenum)}}]{\setlength{\rightskip}{0pt plus 5cm}int Page\+Table\+::\+Lookup\+Page (
+\begin{DoxyParamCaption}
+\item[{int}]{pagenum}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_a2590af90445c76b97420da95cf7210ec}{}\label{classPageTable_a2590af90445c76b97420da95cf7210ec}
+
+
+Lookup a page number and return the corresponding frame. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & page \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em int} & frame \\
+\hline
+\end{DoxyRetVals}
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00093}{93} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+\index{Page\+Table@{Page\+Table}!Lookup\+Page\+\_\+no\+\_\+\+L\+RU@{Lookup\+Page\+\_\+no\+\_\+\+L\+RU}}
+\index{Lookup\+Page\+\_\+no\+\_\+\+L\+RU@{Lookup\+Page\+\_\+no\+\_\+\+L\+RU}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Lookup\+Page\+\_\+no\+\_\+\+L\+R\+U(int pagenum)}{LookupPage_no_LRU(int pagenum)}}]{\setlength{\rightskip}{0pt plus 5cm}int Page\+Table\+::\+Lookup\+Page\+\_\+no\+\_\+\+L\+RU (
+\begin{DoxyParamCaption}
+\item[{int}]{pagenum}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_a3444b04644cb833bfd2a9b615704e6a1}{}\label{classPageTable_a3444b04644cb833bfd2a9b615704e6a1}
+
+
+Lookup a page number, but don\textquotesingle{}t update L\+RU calculations. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & Page to Lookup \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em int} & Frame at \\
+\hline
+\end{DoxyRetVals}
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00101}{101} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+\index{Page\+Table@{Page\+Table}!Page\+Is\+Valid@{Page\+Is\+Valid}}
+\index{Page\+Is\+Valid@{Page\+Is\+Valid}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Page\+Is\+Valid(int pagenum)}{PageIsValid(int pagenum)}}]{\setlength{\rightskip}{0pt plus 5cm}bool Page\+Table\+::\+Page\+Is\+Valid (
+\begin{DoxyParamCaption}
+\item[{int}]{pagenum}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_ac43e4430873d7760eb7a25cd9a025f8c}{}\label{classPageTable_ac43e4430873d7760eb7a25cd9a025f8c}
+
+
+Determines if a page is loaded into physical memory. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & Page number to check \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em bool} & True if in memory (hit), False if not (miss) \\
+\hline
+\end{DoxyRetVals}
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00135}{135} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+\index{Page\+Table@{Page\+Table}!Page\+Out\+\_\+table@{Page\+Out\+\_\+table}}
+\index{Page\+Out\+\_\+table@{Page\+Out\+\_\+table}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Page\+Out\+\_\+table(int pagenum)}{PageOut_table(int pagenum)}}]{\setlength{\rightskip}{0pt plus 5cm}void Page\+Table\+::\+Page\+Out\+\_\+table (
+\begin{DoxyParamCaption}
+\item[{int}]{pagenum}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_ae8c5d4a967b4d8d45e8d4e517f618f70}{}\label{classPageTable_ae8c5d4a967b4d8d45e8d4e517f618f70}
+
+
+Page out the table. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & The page to pageout. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00118}{118} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+\index{Page\+Table@{Page\+Table}!Print\+Inverse\+Page\+Table@{Print\+Inverse\+Page\+Table}}
+\index{Print\+Inverse\+Page\+Table@{Print\+Inverse\+Page\+Table}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Print\+Inverse\+Page\+Table()}{PrintInversePageTable()}}]{\setlength{\rightskip}{0pt plus 5cm}void Page\+Table\+::\+Print\+Inverse\+Page\+Table (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_a8b7ab1d3a811eabd0e2862bc9a4ae1f7}{}\label{classPageTable_a8b7ab1d3a811eabd0e2862bc9a4ae1f7}
+
+
+Print the Inverse Page table. 
+
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00157}{157} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+\index{Page\+Table@{Page\+Table}!Print\+Page\+Table@{Print\+Page\+Table}}
+\index{Print\+Page\+Table@{Print\+Page\+Table}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Print\+Page\+Table()}{PrintPageTable()}}]{\setlength{\rightskip}{0pt plus 5cm}void Page\+Table\+::\+Print\+Page\+Table (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_ab06580f0815ea97a303a09da860a670b}{}\label{classPageTable_ab06580f0815ea97a303a09da860a670b}
+
+
+Print out the page table. 
+
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00141}{141} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+\index{Page\+Table@{Page\+Table}!Set\+Page\+To\+Frame@{Set\+Page\+To\+Frame}}
+\index{Set\+Page\+To\+Frame@{Set\+Page\+To\+Frame}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Set\+Page\+To\+Frame(int pagenum, int framenum)}{SetPageToFrame(int pagenum, int framenum)}}]{\setlength{\rightskip}{0pt plus 5cm}void Page\+Table\+::\+Set\+Page\+To\+Frame (
+\begin{DoxyParamCaption}
+\item[{int}]{pagenum, }
+\item[{int}]{framenum}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_ac961a37f5dde09c3addce2fcd118f24d}{}\label{classPageTable_ac961a37f5dde09c3addce2fcd118f24d}
+
+
+Set a page table entry to a given frame. 
+
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00109}{109} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+\index{Page\+Table@{Page\+Table}!Update\+L\+R\+U\+List@{Update\+L\+R\+U\+List}}
+\index{Update\+L\+R\+U\+List@{Update\+L\+R\+U\+List}!Page\+Table@{Page\+Table}}
+\subsubsection[{\texorpdfstring{Update\+L\+R\+U\+List(int last\+\_\+used)}{UpdateLRUList(int last_used)}}]{\setlength{\rightskip}{0pt plus 5cm}void Page\+Table\+::\+Update\+L\+R\+U\+List (
+\begin{DoxyParamCaption}
+\item[{int}]{last\+\_\+used}
+\end{DoxyParamCaption}
+)}\hypertarget{classPageTable_a60e3389362244edc011676ddfc26af13}{}\label{classPageTable_a60e3389362244edc011676ddfc26af13}
+
+
+Update the L\+RU list. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & The latest used element \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00174}{174} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/\hyperlink{memory_8h}{memory.\+h}\item 
+src/\hyperlink{memory_8cpp}{memory.\+cpp}\end{DoxyCompactItemize}

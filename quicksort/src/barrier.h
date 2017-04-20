@@ -13,7 +13,7 @@
 
 typedef struct {
 	// Status variable: 1 if the barrier is "closed", and 0 if open
-	int barrier_active;
+	pthread_cond_t barrier_active;
 
 	// Counter variable - signifies how many processes are left
 	int barrier_counter;

@@ -1,0 +1,166 @@
+\hypertarget{memory_8h_source}{}\section{memory.\+h}
+\label{memory_8h_source}\index{src/memory.\+h@{src/memory.\+h}}
+
+\begin{DoxyCode}
+00001 \textcolor{preprocessor}{#ifndef \_\_MEMORY\_H\_}
+00002 \textcolor{preprocessor}{#define \_\_MEMORY\_H\_}
+00003 
+00004 \textcolor{preprocessor}{#include <iostream>}
+00005 \textcolor{preprocessor}{#include <stdint.h>}
+00006 \textcolor{preprocessor}{#include <cstdio>}
+00007 \textcolor{preprocessor}{#include <stdlib.h>}
+00008 \textcolor{preprocessor}{#include <string.h>}
+00009 \textcolor{preprocessor}{#include <vector>}
+00010 \textcolor{preprocessor}{#include <queue>}
+00011 \textcolor{preprocessor}{#include <fstream>}
+00012 \textcolor{keyword}{using namespace }\hyperlink{namespacestd}{std};
+00013 
+\hypertarget{memory_8h_source.tex_l00014}{}\hyperlink{memory_8h_af6463c112a252cbb29636eef8ae9e6dc}{00014} \textcolor{preprocessor}{#define ENABLE\_LRU}
+\hypertarget{memory_8h_source.tex_l00015}{}\hyperlink{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}{00015} \textcolor{preprocessor}{#define FRAME\_SIZE 256}
+\hypertarget{memory_8h_source.tex_l00016}{}\hyperlink{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}{00016} \textcolor{preprocessor}{#define PAGE\_SIZE 256}
+\hypertarget{memory_8h_source.tex_l00017}{}\hyperlink{memory_8h_a0b0ce802de0cae773522024d7626b007}{00017} \textcolor{preprocessor}{#define N\_FRAMES 8}
+00018 
+\hypertarget{memory_8h_source.tex_l00019}{}\hyperlink{memory_8h_a6fc2e8cefe03a42d0a238bad856a2a8b}{00019} \textcolor{preprocessor}{#define PAGE\_TABLE\_ENTRIES 16}
+00020 
+\hypertarget{memory_8h_source.tex_l00021}{}\hyperlink{memory_8h_a478707addabe7b0aedaa632b70394d75}{00021} \textcolor{preprocessor}{#define BACKEND\_FN "BACKING\_STORE.bin"}
+\hypertarget{memory_8h_source.tex_l00022}{}\hyperlink{memory_8h_a502fddf4e42292e4318a924b6b3b7759}{00022} \textcolor{preprocessor}{#define BACKEND\_FN\_CHARS 18}
+00023 
+\hypertarget{memory_8h_source.tex_l00024}{}\hyperlink{memory_8h_a391c8595be4da3b3f1cd95918b89da2c}{00024} \textcolor{preprocessor}{#define VIRTUAL\_ADDRESS\_MAX 4095}
+00025 
+\hypertarget{memory_8h_source.tex_l00026}{}\hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{00026} \textcolor{preprocessor}{#define TLB\_ENTRIES 4}
+00027 
+00028 
+00029 \textcolor{comment}{// Forward Declarations}
+00030 
+00031 \textcolor{keyword}{class }\hyperlink{classPhysicalMemory}{PhysicalMemory};
+00032 \textcolor{keyword}{class }\hyperlink{classPageTable}{PageTable};
+00033 \textcolor{keyword}{class }\hyperlink{classTranslationLookasideBuffer}{TranslationLookasideBuffer};
+00034 \textcolor{keyword}{class }\hyperlink{classMemoryManager}{MemoryManager};
+00035 
+00036 
+\hypertarget{memory_8h_source.tex_l00041}{}\hyperlink{classPhysicalMemory}{00041} \textcolor{keyword}{class }\hyperlink{classPhysicalMemory}{PhysicalMemory} \{
+00042 
+00043 \textcolor{keyword}{public}:
+00047     \hyperlink{classPhysicalMemory}{PhysicalMemory}();
+00048     
+00053     \textcolor{keywordtype}{int} FindFirstFrame();
+00054     
+00062     \textcolor{keywordtype}{char} GetMemoryContents(\textcolor{keywordtype}{int} frame, \textcolor{keywordtype}{int} offset);
+00063 
+00068     \textcolor{keywordtype}{bool} isFull();
+00069 
+00076     \textcolor{keywordtype}{void} PageIn(\textcolor{keywordtype}{int} frame, \textcolor{keywordtype}{char} pagein[\hyperlink{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}{FRAME\_SIZE}]);
+00077 
+00083     \textcolor{keywordtype}{void} PageOut(\textcolor{keywordtype}{int} frame);
+00084 
+00085 \textcolor{keyword}{private}:
+00086     \textcolor{keyword}{static} \textcolor{keyword}{const} \textcolor{keywordtype}{int} n\_frames = \hyperlink{memory_8h_a0b0ce802de0cae773522024d7626b007}{N\_FRAMES};
+00087     \textcolor{keyword}{static} \textcolor{keyword}{const} \textcolor{keywordtype}{int} frame\_size = \hyperlink{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}{FRAME\_SIZE};
+00088 
+00089     \textcolor{keywordtype}{char} memory[n\_frames][frame\_size];
+00090 
+00094     \textcolor{keywordtype}{char} occupied[n\_frames];
+00095 
+00096 \};  
+00097 
+\hypertarget{memory_8h_source.tex_l00102}{}\hyperlink{classPageTable}{00102} \textcolor{keyword}{class }\hyperlink{classPageTable}{PageTable} \{
+00103 
+00104 \textcolor{keyword}{public}:
+00105 
+00109     \hyperlink{classPageTable}{PageTable}();
+00110 
+00116     \textcolor{keywordtype}{int} LookupPage(\textcolor{keywordtype}{int} pagenum);
+00117 
+00123     \textcolor{keywordtype}{int} LookupPage\_no\_LRU(\textcolor{keywordtype}{int} pagenum);
+00127     \textcolor{keywordtype}{void} SetPageToFrame(\textcolor{keywordtype}{int} pagenum, \textcolor{keywordtype}{int} framenum);
+00128 
+00134     \textcolor{keywordtype}{bool} PageIsValid(\textcolor{keywordtype}{int} pagenum);
+00135 
+00139     \textcolor{keywordtype}{void} PrintPageTable();
+00140 
+00144     \textcolor{keywordtype}{void} PrintInversePageTable();
+00145 
+00151     \textcolor{keywordtype}{int} GetLRUPage();
+00152 
+00157     \textcolor{keywordtype}{void} UpdateLRUList(\textcolor{keywordtype}{int} last\_used);
+00158     
+00165     \textcolor{keywordtype}{void} PageOut\_table(\textcolor{keywordtype}{int} pagenum);
+00166 
+00167 \textcolor{keyword}{private}:
+00168     \textcolor{keyword}{static} \textcolor{keyword}{const} \textcolor{keywordtype}{int} pgtable\_entries = \hyperlink{memory_8h_a6fc2e8cefe03a42d0a238bad856a2a8b}{PAGE\_TABLE\_ENTRIES};
+00172     \textcolor{keywordtype}{int} pgtable[\hyperlink{memory_8h_a6fc2e8cefe03a42d0a238bad856a2a8b}{PAGE\_TABLE\_ENTRIES}];
+00173     \textcolor{keywordtype}{int} valid[\hyperlink{memory_8h_a6fc2e8cefe03a42d0a238bad856a2a8b}{PAGE\_TABLE\_ENTRIES}];
+00174     std::vector<int> LRU\_list;
+00175 \};
+00176 
+\hypertarget{memory_8h_source.tex_l00181}{}\hyperlink{structMemoryPairAddress__t}{00181} \textcolor{keyword}{typedef} \textcolor{keyword}{struct }\{
+\hypertarget{memory_8h_source.tex_l00182}{}\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{00182}     \textcolor{keywordtype}{int} \hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P};
+\hypertarget{memory_8h_source.tex_l00183}{}\hyperlink{structMemoryPairAddress__t_ad608e86288286889c2658e8043414edf}{00183}     \textcolor{keywordtype}{int} \hyperlink{structMemoryPairAddress__t_ad608e86288286889c2658e8043414edf}{d};
+00184 \} \hyperlink{structMemoryPairAddress__t}{MemoryPairAddress\_t};
+00185 
+00191 \hyperlink{structMemoryPairAddress__t}{MemoryPairAddress\_t} \hyperlink{memory_8h_a90bdb77a86b4a78c22b50e250b77d9ad}{ConvertAddressFormat}(\textcolor{keywordtype}{int} addr);
+00192 \textcolor{keywordtype}{void} \hyperlink{memory_8h_ac93b824d9e950d90189b96ba89151512}{PrintMemoryPairAddress}(\hyperlink{structMemoryPairAddress__t}{MemoryPairAddress\_t} mempair);
+00193 \textcolor{comment}{/*}
+00194 \textcolor{comment}{    @class TranslationLookasideBuffer}
+00195 \textcolor{comment}{    @brief A TLB used as a cache for memory}
+00196 \textcolor{comment}{*/}
+00197 
+\hypertarget{memory_8h_source.tex_l00198}{}\hyperlink{structTLBReturnData__t}{00198} \textcolor{keyword}{typedef} \textcolor{keyword}{struct }\{
+\hypertarget{memory_8h_source.tex_l00199}{}\hyperlink{structTLBReturnData__t_ac4bdfa0ee74b50048e94321426877439}{00199}     \textcolor{keywordtype}{int} \hyperlink{structTLBReturnData__t_ac4bdfa0ee74b50048e94321426877439}{frame};
+\hypertarget{memory_8h_source.tex_l00200}{}\hyperlink{structTLBReturnData__t_a58914c8a985e6cdb2f48a56ab41a6985}{00200}     \textcolor{keywordtype}{int} \hyperlink{structTLBReturnData__t_a58914c8a985e6cdb2f48a56ab41a6985}{entry};
+00201 \} \hyperlink{structTLBReturnData__t}{TLBReturnData\_t};
+00202 
+\hypertarget{memory_8h_source.tex_l00203}{}\hyperlink{classTranslationLookasideBuffer}{00203} \textcolor{keyword}{class }\hyperlink{classTranslationLookasideBuffer}{TranslationLookasideBuffer} \{
+00204 
+00205 \textcolor{keyword}{public}:
+00209     \hyperlink{classTranslationLookasideBuffer}{TranslationLookasideBuffer}();
+00210 
+00215     \textcolor{keywordtype}{bool} isFull();
+00216 
+00221     \hyperlink{structTLBReturnData__t}{TLBReturnData\_t} LookupTLBFrame(\textcolor{keywordtype}{int} pagenum);
+00222 
+00230     \textcolor{keywordtype}{int} UpdateTLB(\textcolor{keywordtype}{int} pagenum, \textcolor{keywordtype}{int} framenum);
+00231 
+00235     \textcolor{keywordtype}{void} PrintTLB();
+00236 \textcolor{keyword}{private}:
+00237     \textcolor{keywordtype}{int} pagecol[\hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{TLB\_ENTRIES}];
+00238     \textcolor{keywordtype}{int} framecol[\hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{TLB\_ENTRIES}];
+00239     \textcolor{keywordtype}{int} occupied[\hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{TLB\_ENTRIES}];
+00240 
+00244     std::queue<int> FIFO\_tlb;
+00245 \};
+00246 
+\hypertarget{memory_8h_source.tex_l00251}{}\hyperlink{classMemoryManager}{00251} \textcolor{keyword}{class }\hyperlink{classMemoryManager}{MemoryManager} \{
+00252 \textcolor{keyword}{public}:
+00257     \hyperlink{classMemoryManager}{MemoryManager}();
+00258     
+00265     \textcolor{keywordtype}{char} ReadMemory(\textcolor{keywordtype}{int} addr);
+00266 
+00273     \textcolor{keywordtype}{int} TranslateAddress(\textcolor{keywordtype}{int} addr);
+00274 
+00278     \textcolor{keywordtype}{void} PrintPageTable();
+00279 
+00283     \textcolor{keywordtype}{void} PrintTLB();
+00284 
+00288     \textcolor{keywordtype}{void} PrintInversePageTable();
+00289 
+00293     \textcolor{keywordtype}{void} PrintAll();
+00294 
+00298     \textcolor{keywordtype}{void} PrintStats();
+00299 \textcolor{keyword}{private}:
+00300     \textcolor{keywordtype}{char}* backend\_store\_filename;
+00301 
+00302     \hyperlink{classPageTable}{PageTable} page\_table;
+00303     \hyperlink{classPhysicalMemory}{PhysicalMemory} physical\_memory;
+00304     \hyperlink{classTranslationLookasideBuffer}{TranslationLookasideBuffer} tlb;
+00305 
+00306     uint32\_t total\_accesses;
+00307     uint32\_t page\_faults;
+00308     uint32\_t tlb\_hitrate;
+00309 
+00317     \textcolor{keywordtype}{void} FileSeek(\textcolor{keywordtype}{int} fpage, \textcolor{keywordtype}{char}* dest);
+00318 \};
+00319 
+00320 
+00321 \textcolor{preprocessor}{#endif}
+\end{DoxyCode}

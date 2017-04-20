@@ -1,0 +1,131 @@
+\hypertarget{main_8cpp_source}{}\section{main.\+cpp}
+\label{main_8cpp_source}\index{src/main.\+cpp@{src/main.\+cpp}}
+
+\begin{DoxyCode}
+00001 \textcolor{preprocessor}{#include <iostream>}
+00002 \textcolor{preprocessor}{#include <fstream>}
+00003 \textcolor{preprocessor}{#include <sstream>}
+00004 \textcolor{preprocessor}{#include <cstdio>}
+00005 \textcolor{preprocessor}{#include "\hyperlink{memory_8h}{memory.h}"}
+00006 \textcolor{keyword}{using namespace }\hyperlink{namespacestd}{std};
+00007 
+\hypertarget{main_8cpp_source.tex_l00008}{}\hyperlink{main_8cpp_a3d58a37eb1401f1e1e0a2e43a28e0675}{00008} \textcolor{preprocessor}{#define INPUT\_FN "addresses.txt"}
+00009 
+00010 \textcolor{keywordtype}{void} \hyperlink{main_8cpp_a5aa22abf10bfd6c47d6f04571ea77f1d}{RunPhysicalMemoryTests}();
+00011 \textcolor{keywordtype}{void} \hyperlink{main_8cpp_a9d50d2049f7ee3c00984500c882ddde9}{RunAddressConversionTests}();
+00012 \textcolor{keywordtype}{void} \hyperlink{main_8cpp_a31aaac7e09dbfca2c888cb8e319fcdbd}{RunPagingTests}();
+00013 \textcolor{keywordtype}{void} \hyperlink{main_8cpp_ac5347a09d49e669bd79b50bf65d74e7d}{RunFullMemoryTests}();
+00014 
+00015 \textcolor{keywordtype}{void} \hyperlink{main_8cpp_a42ef34a387e48b6661322f8f1d6da730}{ExecuteFromFile}();
+00016 
+\hypertarget{main_8cpp_source.tex_l00017}{}\hyperlink{main_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{00017} \textcolor{keywordtype}{int} \hyperlink{main_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{main}() \{
+00018     \hyperlink{main_8cpp_a42ef34a387e48b6661322f8f1d6da730}{ExecuteFromFile}();
+00019     \textcolor{keywordflow}{return} 0;
+00020 \}
+00021 
+\hypertarget{main_8cpp_source.tex_l00022}{}\hyperlink{main_8cpp_a42ef34a387e48b6661322f8f1d6da730}{00022} \textcolor{keywordtype}{void} \hyperlink{main_8cpp_a42ef34a387e48b6661322f8f1d6da730}{ExecuteFromFile}() \{
+00023     \hyperlink{classMemoryManager}{MemoryManager} mmu;
+00024 
+00025     std::ifstream infile(\hyperlink{main_8cpp_a3d58a37eb1401f1e1e0a2e43a28e0675}{INPUT\_FN});
+00026     std::string line;
+00027     \textcolor{keywordflow}{while}(std::getline(infile, line)) \{
+00028         std::istringstream iss(line);
+00029         \textcolor{keywordtype}{int} addr;
+00030         
+00031         \textcolor{keywordflow}{if}(!(iss >> addr))\{
+00032             cout << \textcolor{stringliteral}{"I/O ERROR: Couldn't parse "} << iss << endl;
+00033             exit(EXIT\_FAILURE);
+00034         \}
+00035         cout << \textcolor{stringliteral}{"Dereferencing address \{"} << addr << \textcolor{stringliteral}{"\}..."} << endl;
+00036         \textcolor{keywordtype}{int} contents = mmu.\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{ReadMemory}(addr);
+00037         cout << \textcolor{stringliteral}{"... found data ["} << contents << \textcolor{stringliteral}{"]"} << endl << endl;
+00038     \}
+00039 
+00040     cout << endl << \textcolor{stringliteral}{"Contents of TLB:"} << endl;
+00041     mmu.\hyperlink{classMemoryManager_a4bc5f491976e5253bf00a07a71b55ef6}{PrintTLB}();
+00042     cout << endl << \textcolor{stringliteral}{"Contents of Page Table:"} << endl;
+00043     mmu.\hyperlink{classMemoryManager_aa7437efdc1ebd09895d451e2c521857a}{PrintPageTable}();
+00044     cout << endl << \textcolor{stringliteral}{"Contents of Page Table (Inverse):"} << endl;
+00045     mmu.\hyperlink{classMemoryManager_a231141529c907c50de129169f16bedf1}{PrintInversePageTable}();
+00046     cout << endl << \textcolor{stringliteral}{"Memory Access Statistics: "} << endl << endl;
+00047     mmu.\hyperlink{classMemoryManager_ad0c7c13901cb9c6844aebf6bf9238c47}{PrintStats}();
+00048 \}
+00049 
+\hypertarget{main_8cpp_source.tex_l00050}{}\hyperlink{main_8cpp_ac5347a09d49e669bd79b50bf65d74e7d}{00050} \textcolor{keywordtype}{void} \hyperlink{main_8cpp_ac5347a09d49e669bd79b50bf65d74e7d}{RunFullMemoryTests}() \{
+00051     \hyperlink{classMemoryManager}{MemoryManager} mmu;
+00052     \textcolor{comment}{// Fill the memory with the first 8 frames}
+00053     
+00054     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 1; i < 4095-255; i = i + 256) \{
+00055         mmu.\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{ReadMemory}(i);
+00056         mmu.\hyperlink{classMemoryManager_ae7bbb5231788516ca34caca3d428b0ef}{PrintAll}();
+00057     \}
+00058     mmu.\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{ReadMemory}(3555);
+00059     mmu.\hyperlink{classMemoryManager_ae7bbb5231788516ca34caca3d428b0ef}{PrintAll}();
+00060     mmu.\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{ReadMemory}(5);
+00061     mmu.\hyperlink{classMemoryManager_ae7bbb5231788516ca34caca3d428b0ef}{PrintAll}();
+00062     mmu.\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{ReadMemory}(2050);
+00063     mmu.\hyperlink{classMemoryManager_ae7bbb5231788516ca34caca3d428b0ef}{PrintAll}();
+00064     mmu.\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{ReadMemory}(2050);
+00065     mmu.\hyperlink{classMemoryManager_ae7bbb5231788516ca34caca3d428b0ef}{PrintAll}();
+00066 \}
+00067 
+\hypertarget{main_8cpp_source.tex_l00068}{}\hyperlink{main_8cpp_a31aaac7e09dbfca2c888cb8e319fcdbd}{00068} \textcolor{keywordtype}{void} \hyperlink{main_8cpp_a31aaac7e09dbfca2c888cb8e319fcdbd}{RunPagingTests}() \{
+00069     \hyperlink{classMemoryManager}{MemoryManager} mmu;
+00070     \textcolor{keywordtype}{char} result;
+00071     \textcolor{keywordtype}{int} addr;
+00072 
+00073     addr = 1;
+00074     result = mmu.\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{ReadMemory}(addr);
+00075     printf(\textcolor{stringliteral}{"Retrieved \{%d\} from virtual address \{%d\}\(\backslash\)n\(\backslash\)n"}, result, addr);
+00076     \textcolor{comment}{// The page table should have frame 0 assigned to page 0}
+00077     \textcolor{comment}{// mmu.PrintPageTable();}
+00078 
+00079     addr = 513;
+00080     result = mmu.\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{ReadMemory}(addr);
+00081     printf(\textcolor{stringliteral}{"Retrieved \{%d\} from virtual address \{%d\}\(\backslash\)n\(\backslash\)n"}, result, addr);
+00082     \textcolor{comment}{// mmu.PrintPageTable();}
+00083 
+00084     addr = 515;
+00085     result = mmu.\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{ReadMemory}(addr);
+00086     printf(\textcolor{stringliteral}{"Retrieved \{%d\} from virtual address \{%d\}\(\backslash\)n\(\backslash\)n"}, result, addr);
+00087     \textcolor{comment}{// result = mmu.ReadMemory(515);}
+00088     mmu.\hyperlink{classMemoryManager_aa7437efdc1ebd09895d451e2c521857a}{PrintPageTable}();
+00089 
+00090 \}
+00091 
+\hypertarget{main_8cpp_source.tex_l00092}{}\hyperlink{main_8cpp_a9d50d2049f7ee3c00984500c882ddde9}{00092} \textcolor{keywordtype}{void} \hyperlink{main_8cpp_a9d50d2049f7ee3c00984500c882ddde9}{RunAddressConversionTests}()\{ 
+00093     \hyperlink{structMemoryPairAddress__t}{MemoryPairAddress\_t} m1 = \hyperlink{memory_8cpp_a90bdb77a86b4a78c22b50e250b77d9ad}{ConvertAddressFormat}(2096);
+00094     \hyperlink{memory_8cpp_ac93b824d9e950d90189b96ba89151512}{PrintMemoryPairAddress}(m1);
+00095 
+00096     m1 = \hyperlink{memory_8cpp_a90bdb77a86b4a78c22b50e250b77d9ad}{ConvertAddressFormat}(4095);
+00097     \hyperlink{memory_8cpp_ac93b824d9e950d90189b96ba89151512}{PrintMemoryPairAddress}(m1);
+00098 
+00099     m1 = \hyperlink{memory_8cpp_a90bdb77a86b4a78c22b50e250b77d9ad}{ConvertAddressFormat}(6);
+00100     \hyperlink{memory_8cpp_ac93b824d9e950d90189b96ba89151512}{PrintMemoryPairAddress}(m1);
+00101 \}
+\hypertarget{main_8cpp_source.tex_l00102}{}\hyperlink{main_8cpp_a5aa22abf10bfd6c47d6f04571ea77f1d}{00102} \textcolor{keywordtype}{void} \hyperlink{main_8cpp_a5aa22abf10bfd6c47d6f04571ea77f1d}{RunPhysicalMemoryTests}()\{
+00103     \hyperlink{classPhysicalMemory}{PhysicalMemory} pmem;
+00104     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(0, 100);
+00105     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(1, 100);
+00106     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(2, 100);
+00107     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(3, 100);
+00108 
+00109     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(5, 100);
+00110     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(6, 100);
+00111     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(7, 100);
+00112     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(1, 100);
+00113     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(2, 100);
+00114     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(3, 100);
+00115     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(4, 100);
+00116 
+00117     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(5, 100);
+00118     pmem.\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{GetMemoryContents}(6, 100);
+00119 
+00120     \textcolor{comment}{// pmem.GetMemoryContents(0, 300);}
+00121 
+00122     \textcolor{comment}{// printf("Least used: %d\(\backslash\)n", pmem.FindLRUFrame());}
+00123     printf(\textcolor{stringliteral}{"Full?: %d\(\backslash\)n"}, pmem.\hyperlink{classPhysicalMemory_acde26e332e20349baa6c409b88635258}{isFull}());
+00124     printf(\textcolor{stringliteral}{"First available frame: %d\(\backslash\)n"}, pmem.\hyperlink{classPhysicalMemory_a41ba2824ae9550b68036536d94ae8b32}{FindFirstFrame}());
+00125 
+00126 \}
+\end{DoxyCode}

@@ -1,0 +1,493 @@
+\hypertarget{memory_8cpp_source}{}\section{memory.\+cpp}
+\label{memory_8cpp_source}\index{src/memory.\+cpp@{src/memory.\+cpp}}
+
+\begin{DoxyCode}
+00001 \textcolor{preprocessor}{#include "\hyperlink{memory_8h}{memory.h}"}
+00002 \textcolor{keyword}{using namespace }\hyperlink{namespacestd}{std};
+00003 \textcolor{comment}{/*=======================================}
+00004 \textcolor{comment}{=            Physical Memory            =}
+00005 \textcolor{comment}{=======================================*/}
+00006 
+\hypertarget{memory_8cpp_source.tex_l00007}{}\hyperlink{classPhysicalMemory_ad7fefaba61061c7339164836c6c02eaa}{00007} \hyperlink{classPhysicalMemory_ad7fefaba61061c7339164836c6c02eaa}{PhysicalMemory::PhysicalMemory}() \{
+00008     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < n\_frames; i++) \{
+00009         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} j = 0; j < frame\_size; j++) \{
+00010             memory[i][j] = 0x00;
+00011         \}
+00012         occupied[i] = 0x00;
+00013     \}
+00014 \}
+00015 
+00016 \textcolor{comment}{// Determine if the memory is full}
+\hypertarget{memory_8cpp_source.tex_l00017}{}\hyperlink{classPhysicalMemory_acde26e332e20349baa6c409b88635258}{00017} \textcolor{keywordtype}{bool} \hyperlink{classPhysicalMemory_acde26e332e20349baa6c409b88635258}{PhysicalMemory::isFull}() \{
+00018     
+00019     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < n\_frames; i++) \{
+00020         \textcolor{keywordflow}{if}(occupied[i] == 0) \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00021     \}
+00022     \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00023 
+00024 \}
+00025 
+00026 \textcolor{comment}{// Find the first available frame}
+\hypertarget{memory_8cpp_source.tex_l00027}{}\hyperlink{classPhysicalMemory_a41ba2824ae9550b68036536d94ae8b32}{00027} \textcolor{keywordtype}{int} \hyperlink{classPhysicalMemory_a41ba2824ae9550b68036536d94ae8b32}{PhysicalMemory::FindFirstFrame}() \{
+00028     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < n\_frames; i++) \{
+00029         \textcolor{keywordflow}{if}(occupied[i] == 0) \{
+00030             \textcolor{keywordflow}{return} i;
+00031         \}
+00032     \}
+00033     \textcolor{keywordflow}{return} -1;
+00034 \}
+00035 
+00036 \textcolor{comment}{// Return the contents of memory at a give frame and offset}
+\hypertarget{memory_8cpp_source.tex_l00037}{}\hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{00037} \textcolor{keywordtype}{char} \hyperlink{classPhysicalMemory_a2d6b5c45f2377838a76e58b2c083610a}{PhysicalMemory::GetMemoryContents}(\textcolor{keywordtype}{int} frame, \textcolor{keywordtype}{int} offset) \{
+00038     \textcolor{keywordflow}{if}(frame >= n\_frames) \{
+00039         fprintf(stderr, \textcolor{stringliteral}{"%s %d\(\backslash\)n"}, \textcolor{stringliteral}{"MEM\_ERROR1: invalid frame #: "},frame);
+00040         exit(EXIT\_FAILURE);
+00041     \}
+00042     \textcolor{keywordflow}{if}(offset >= frame\_size) \{
+00043         fprintf(stderr, \textcolor{stringliteral}{"%s %d\(\backslash\)n"}, \textcolor{stringliteral}{"MEM\_ERROR2: invalid offset #: "},offset);
+00044         exit(EXIT\_FAILURE);
+00045     \}
+00046 
+00047     \textcolor{keywordflow}{return} memory[frame][offset];
+00048 \}
+00049 
+\hypertarget{memory_8cpp_source.tex_l00050}{}\hyperlink{classPhysicalMemory_a70cb4ae5b23f04cb347ac93cc9fc1028}{00050} \textcolor{keywordtype}{void} \hyperlink{classPhysicalMemory_a70cb4ae5b23f04cb347ac93cc9fc1028}{PhysicalMemory::PageIn}(\textcolor{keywordtype}{int} frame, \textcolor{keywordtype}{char} pagein[
+      \hyperlink{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}{FRAME\_SIZE}]) \{
+00051     \textcolor{keywordflow}{if}(frame >= \hyperlink{memory_8h_a0b0ce802de0cae773522024d7626b007}{N\_FRAMES}) \{
+00052         fprintf(stderr, \textcolor{stringliteral}{"%s %d\(\backslash\)n"}, \textcolor{stringliteral}{"MEM\_ERROR3: invalid frame #: "}, frame);
+00053         exit(EXIT\_FAILURE);
+00054     \}
+00055     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}{FRAME\_SIZE}; i++) \{
+00056         memory[frame][i] = pagein[i];
+00057     \}
+00058     occupied[frame] = 1;
+00059 \}
+00060 
+\hypertarget{memory_8cpp_source.tex_l00061}{}\hyperlink{classPhysicalMemory_a6e1cf83f35ab25e879630783ebaecff3}{00061} \textcolor{keywordtype}{void} \hyperlink{classPhysicalMemory_a6e1cf83f35ab25e879630783ebaecff3}{PhysicalMemory::PageOut}(\textcolor{keywordtype}{int} frame) \{
+00062     \textcolor{keywordflow}{if}(frame < 0 || frame >= \hyperlink{memory_8h_a0b0ce802de0cae773522024d7626b007}{N\_FRAMES}) \{
+00063         fprintf(stderr, \textcolor{stringliteral}{"MEM\_ERROR4: invalid frame # %d\(\backslash\)n"},frame);
+00064         exit(EXIT\_FAILURE);
+00065     \}
+00066     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}{FRAME\_SIZE}; i++) \{
+00067         memory[frame][i] = 0x00;
+00068     \}
+00069     occupied[frame] = 0;
+00070 \}
+00071 \textcolor{comment}{/*=====  End of Physical Memory  ======*/}
+00072 
+00073 
+00074 
+00075 
+00076 
+00077 
+00078 
+00079 
+00080 \textcolor{comment}{/*==================================}
+00081 \textcolor{comment}{=            Page Table            =}
+00082 \textcolor{comment}{==================================*/}
+00083 
+00084 \textcolor{comment}{// Page Table Constructor}
+\hypertarget{memory_8cpp_source.tex_l00085}{}\hyperlink{classPageTable_a75c92e794fd3f5397d2499d54dac22c9}{00085} \hyperlink{classPageTable_a75c92e794fd3f5397d2499d54dac22c9}{PageTable::PageTable}() \{
+00086     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < pgtable\_entries; i++) \{
+00087         pgtable[i] = -1;
+00088         valid[i] = 0;
+00089     \}
+00090 \}
+00091 
+00092 \textcolor{comment}{// Lookup a page number and return the corresponding frame}
+\hypertarget{memory_8cpp_source.tex_l00093}{}\hyperlink{classPageTable_a2590af90445c76b97420da95cf7210ec}{00093} \textcolor{keywordtype}{int} \hyperlink{classPageTable_a2590af90445c76b97420da95cf7210ec}{PageTable::LookupPage}(\textcolor{keywordtype}{int} pagenum) \{
+00094     \textcolor{keywordflow}{if}(pagenum >= pgtable\_entries) \{
+00095         fprintf(stderr, \textcolor{stringliteral}{"%s %d\(\backslash\)n"}, \textcolor{stringliteral}{"PT\_ERROR: invalid page #: "}, pagenum );
+00096         exit(EXIT\_FAILURE);
+00097     \}
+00098     UpdateLRUList(pagenum);
+00099     \textcolor{keywordflow}{return} pgtable[pagenum];
+00100 \}
+\hypertarget{memory_8cpp_source.tex_l00101}{}\hyperlink{classPageTable_a3444b04644cb833bfd2a9b615704e6a1}{00101} \textcolor{keywordtype}{int} \hyperlink{classPageTable_a3444b04644cb833bfd2a9b615704e6a1}{PageTable::LookupPage\_no\_LRU}(\textcolor{keywordtype}{int} pagenum)\{
+00102     \textcolor{keywordflow}{if}(pagenum >= pgtable\_entries) \{
+00103         fprintf(stderr, \textcolor{stringliteral}{"%s %d\(\backslash\)n"}, \textcolor{stringliteral}{"PT\_ERROR: invalid page #: "}, pagenum );
+00104         exit(EXIT\_FAILURE);
+00105     \}
+00106     \textcolor{keywordflow}{return} pgtable[pagenum];
+00107 \}
+00108 \textcolor{comment}{// Set a value of the page table}
+\hypertarget{memory_8cpp_source.tex_l00109}{}\hyperlink{classPageTable_ac961a37f5dde09c3addce2fcd118f24d}{00109} \textcolor{keywordtype}{void} \hyperlink{classPageTable_ac961a37f5dde09c3addce2fcd118f24d}{PageTable::SetPageToFrame}(\textcolor{keywordtype}{int} pagenum, \textcolor{keywordtype}{int} framenum) \{
+00110     \textcolor{keywordflow}{if}(pagenum >= pgtable\_entries || framenum >= \hyperlink{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}{FRAME\_SIZE}) \{
+00111         fprintf(stderr, \textcolor{stringliteral}{"PT\_ERROR: Invalid Page/Frame Combination: Page: %d , Frame: %d\(\backslash\)n"}, pagenum, 
+      framenum);
+00112         exit(EXIT\_FAILURE);
+00113     \}
+00114     pgtable[pagenum] = framenum;
+00115     valid[pagenum] = 1;
+00116 \}
+00117 
+\hypertarget{memory_8cpp_source.tex_l00118}{}\hyperlink{classPageTable_ae8c5d4a967b4d8d45e8d4e517f618f70}{00118} \textcolor{keywordtype}{void} \hyperlink{classPageTable_ae8c5d4a967b4d8d45e8d4e517f618f70}{PageTable::PageOut\_table}(\textcolor{keywordtype}{int} pagenum) \{
+00119     \textcolor{keywordflow}{if}(pagenum >= pgtable\_entries) \{
+00120         fprintf(stderr, \textcolor{stringliteral}{"PT\_ERROR: Invalid Page #: %d"}, pagenum);
+00121         exit(EXIT\_FAILURE);
+00122     \}
+00123     pgtable[pagenum] = -1;
+00124     valid[pagenum] = 0;
+00125 
+00126     \textcolor{keywordtype}{int} lrusize = LRU\_list.size();
+00127     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < lrusize; i++) \{
+00128         \textcolor{keywordflow}{if} (LRU\_list[i] == pagenum) \{
+00129             LRU\_list.erase(LRU\_list.begin() + i);
+00130             \textcolor{keywordflow}{break};
+00131         \}
+00132     \} 
+00133 \}
+00134 
+\hypertarget{memory_8cpp_source.tex_l00135}{}\hyperlink{classPageTable_ac43e4430873d7760eb7a25cd9a025f8c}{00135} \textcolor{keywordtype}{bool} \hyperlink{classPageTable_ac43e4430873d7760eb7a25cd9a025f8c}{PageTable::PageIsValid}(\textcolor{keywordtype}{int} pagenum) \{
+00136     \textcolor{keywordflow}{if}(valid[pagenum] == 1) \{
+00137         \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00138     \} \textcolor{keywordflow}{else} \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00139 \}
+00140 
+\hypertarget{memory_8cpp_source.tex_l00141}{}\hyperlink{classPageTable_ab06580f0815ea97a303a09da860a670b}{00141} \textcolor{keywordtype}{void} \hyperlink{classPageTable_ab06580f0815ea97a303a09da860a670b}{PageTable::PrintPageTable}() \{
+00142     printf(\textcolor{stringliteral}{"\(\backslash\)n\(\backslash\)t\(\backslash\)tPAGE TABLE\(\backslash\)n"});
+00143     printf(\textcolor{stringliteral}{"\(\backslash\)t%s  %s  %s\(\backslash\)n"},\textcolor{stringliteral}{"[Page #]"}, \textcolor{stringliteral}{"[Frame #]"}, \textcolor{stringliteral}{"[Valid?]"});
+00144     printf(\textcolor{stringliteral}{"\(\backslash\)t%s"},\textcolor{stringliteral}{"------------------------------\(\backslash\)n"});
+00145     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_a6fc2e8cefe03a42d0a238bad856a2a8b}{PAGE\_TABLE\_ENTRIES}; i++) \{
+00146         \textcolor{keywordflow}{if} (pgtable[i] != -1)
+00147              printf(\textcolor{stringliteral}{"\(\backslash\)t%d\(\backslash\)t     %d\(\backslash\)t        %d\(\backslash\)n"}, i, pgtable[i], valid[i]);
+00148         \textcolor{keywordflow}{else}
+00149             printf(\textcolor{stringliteral}{"\(\backslash\)t%d\(\backslash\)t     %s\(\backslash\)t        %d\(\backslash\)n"}, i, \textcolor{stringliteral}{"-"}, valid[i]);
+00150     \}
+00151     printf(\textcolor{stringliteral}{"\(\backslash\)tLRU List (old->new): "});
+00152     \textcolor{keywordflow}{for}(uint32\_t i = 0; i < LRU\_list.size(); i++) \{
+00153         printf(\textcolor{stringliteral}{"\{%d\}"}, LRU\_list[i]);
+00154     \}
+00155     printf(\textcolor{stringliteral}{"\(\backslash\)n"});
+00156 \}
+\hypertarget{memory_8cpp_source.tex_l00157}{}\hyperlink{classPageTable_a8b7ab1d3a811eabd0e2862bc9a4ae1f7}{00157} \textcolor{keywordtype}{void} \hyperlink{classPageTable_a8b7ab1d3a811eabd0e2862bc9a4ae1f7}{PageTable::PrintInversePageTable}() \{
+00158     printf(\textcolor{stringliteral}{"\(\backslash\)n\(\backslash\)t\(\backslash\)tINVERSE PAGE TABLE\(\backslash\)n"});
+00159     printf(\textcolor{stringliteral}{"\(\backslash\)t%s  %s  %s\(\backslash\)n"},\textcolor{stringliteral}{"[Frame #]"}, \textcolor{stringliteral}{"[Page #]"}, \textcolor{stringliteral}{"[Valid?]"});
+00160     printf(\textcolor{stringliteral}{"\(\backslash\)t%s"},\textcolor{stringliteral}{"------------------------------\(\backslash\)n"});
+00161     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_a0b0ce802de0cae773522024d7626b007}{N\_FRAMES}; i++) \{ \textcolor{comment}{// i is the frame number}
+00162         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} j = 0; j < \hyperlink{memory_8h_a6fc2e8cefe03a42d0a238bad856a2a8b}{PAGE\_TABLE\_ENTRIES}; j++) \{ \textcolor{comment}{// j is the page number}
+00163             \textcolor{keywordflow}{if}(i == pgtable[j] && valid[j]) \{
+00164                 \textcolor{keywordflow}{if} (valid[i] != -1)
+00165                      printf(\textcolor{stringliteral}{"\(\backslash\)t%d\(\backslash\)t     %d\(\backslash\)t        %d\(\backslash\)n"}, i, j, valid[j]);
+00166                 \textcolor{keywordflow}{else}
+00167                     printf(\textcolor{stringliteral}{"\(\backslash\)t%d\(\backslash\)t     %s\(\backslash\)t        %d\(\backslash\)n"}, i, \textcolor{stringliteral}{"-"}, valid[j]);
+00168             \}
+00169         \}
+00170     \}
+00171     printf(\textcolor{stringliteral}{"\(\backslash\)n"});    
+00172 \}
+00173 
+\hypertarget{memory_8cpp_source.tex_l00174}{}\hyperlink{classPageTable_a60e3389362244edc011676ddfc26af13}{00174} \textcolor{keywordtype}{void} \hyperlink{classPageTable_a60e3389362244edc011676ddfc26af13}{PageTable::UpdateLRUList}(\textcolor{keywordtype}{int} last\_used) \{
+00175     \textcolor{keywordtype}{int} size = LRU\_list.size();
+00176     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < size; i++) \{
+00177         \textcolor{keywordflow}{if}(LRU\_list.at(i) == last\_used)\{
+00178             LRU\_list.erase(LRU\_list.begin() + i);
+00179             \textcolor{keywordflow}{break};
+00180         \}
+00181     \}
+00182     LRU\_list.push\_back(last\_used);
+00183 \}
+00184 
+\hypertarget{memory_8cpp_source.tex_l00185}{}\hyperlink{classPageTable_ab254ab5edbcf8734594b76e165584ff2}{00185} \textcolor{keywordtype}{int} \hyperlink{classPageTable_ab254ab5edbcf8734594b76e165584ff2}{PageTable::GetLRUPage}() \{
+00186     \textcolor{keywordflow}{return} LRU\_list[0];
+00187 \}
+00188 
+00189 \textcolor{comment}{/*=====  End of Page Table  ======*/}
+00190 
+00191 
+00192 
+00193 
+00194 \textcolor{comment}{/*==================================================}
+00195 \textcolor{comment}{=            TranslationLookasideBuffer            =}
+00196 \textcolor{comment}{==================================================*/}
+00197 
+\hypertarget{memory_8cpp_source.tex_l00198}{}\hyperlink{classTranslationLookasideBuffer_ad6df9fde44600dedcde0a0d7542e357a}{00198} \hyperlink{classTranslationLookasideBuffer_ad6df9fde44600dedcde0a0d7542e357a}{TranslationLookasideBuffer::TranslationLookasideBuffer}
+      () \{
+00199     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{TLB\_ENTRIES}; i++) \{
+00200         pagecol[i] = -1;
+00201         framecol[i] = -1;
+00202         occupied[i] = 0;
+00203     \}
+00204 \}
+00205 
+\hypertarget{memory_8cpp_source.tex_l00206}{}\hyperlink{classTranslationLookasideBuffer_a6416b56aa9b1593b602281f3a81af091}{00206} \textcolor{keywordtype}{bool} \hyperlink{classTranslationLookasideBuffer_a6416b56aa9b1593b602281f3a81af091}{TranslationLookasideBuffer::isFull}() \{
+00207     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{TLB\_ENTRIES}; i++) \{
+00208         \textcolor{keywordflow}{if}(occupied[i] == 0) \textcolor{keywordflow}{return} \textcolor{keyword}{false};
+00209     \}
+00210     \textcolor{keywordflow}{return} \textcolor{keyword}{true};
+00211 \}
+00212 
+\hypertarget{memory_8cpp_source.tex_l00213}{}\hyperlink{classTranslationLookasideBuffer_a411659ccd7cb5b72a165bc69cc353e0a}{00213} \hyperlink{structTLBReturnData__t}{TLBReturnData\_t} \hyperlink{classTranslationLookasideBuffer_a411659ccd7cb5b72a165bc69cc353e0a}{TranslationLookasideBuffer::LookupTLBFrame}
+      (\textcolor{keywordtype}{int} pagenum) \{
+00214     \hyperlink{structTLBReturnData__t}{TLBReturnData\_t} tlbdata;
+00215     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{TLB\_ENTRIES}; i++) \{
+00216         \textcolor{keywordflow}{if}(pagecol[i] == pagenum) \{
+00217             tlbdata.\hyperlink{structTLBReturnData__t_ac4bdfa0ee74b50048e94321426877439}{frame} = framecol[i];
+00218             tlbdata.\hyperlink{structTLBReturnData__t_a58914c8a985e6cdb2f48a56ab41a6985}{entry} = i;
+00219             \textcolor{keywordflow}{return} tlbdata;
+00220         \}
+00221     \}
+00222     tlbdata.\hyperlink{structTLBReturnData__t_ac4bdfa0ee74b50048e94321426877439}{frame} = -1;
+00223     tlbdata.\hyperlink{structTLBReturnData__t_a58914c8a985e6cdb2f48a56ab41a6985}{entry} = -1;
+00224     \textcolor{keywordflow}{return} tlbdata;
+00225 \}
+00226 
+\hypertarget{memory_8cpp_source.tex_l00227}{}\hyperlink{classTranslationLookasideBuffer_a68fe2b0deb2abb9854764471d7c2cba3}{00227} \textcolor{keywordtype}{int} \hyperlink{classTranslationLookasideBuffer_a68fe2b0deb2abb9854764471d7c2cba3}{TranslationLookasideBuffer::UpdateTLB}(\textcolor{keywordtype}{int} pagenum, \textcolor{keywordtype}{int} framenum) \{
+00228     \textcolor{keywordtype}{bool} page\_in\_tlb = \textcolor{keyword}{false};
+00229     \textcolor{keywordtype}{int} i;
+00230     \textcolor{keywordflow}{for}(i = 0; i < \hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{TLB\_ENTRIES}; i++) \{
+00231         page\_in\_tlb = (pagecol[i] == pagenum);
+00232         \textcolor{keywordflow}{if}(page\_in\_tlb) \textcolor{keywordflow}{break};
+00233     \}
+00234     \textcolor{keywordflow}{if}(page\_in\_tlb) \{
+00235         \textcolor{keywordflow}{return} i;
+00236     \} \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(!this->isFull()) \{
+00237         \textcolor{keywordtype}{int} next\_empty = -1;
+00238         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{TLB\_ENTRIES}; i++) \{
+00239             \textcolor{keywordflow}{if} (occupied[i] == 0) \{
+00240                 next\_empty = i;
+00241                 \textcolor{keywordflow}{break};
+00242             \}
+00243         \}
+00244         pagecol[next\_empty] = pagenum;
+00245         framecol[next\_empty] = framenum;
+00246         occupied[next\_empty] = 1;
+00247         FIFO\_tlb.push(next\_empty);
+00248         \textcolor{keywordflow}{return} next\_empty;
+00249     \} \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}(!page\_in\_tlb) \{
+00250         \textcolor{keywordtype}{int} index\_to\_replace = FIFO\_tlb.front();
+00251         FIFO\_tlb.pop();
+00252         pagecol[index\_to\_replace] = pagenum;
+00253         framecol[index\_to\_replace] = framenum;
+00254         FIFO\_tlb.push(index\_to\_replace);
+00255         \textcolor{keywordflow}{return} index\_to\_replace;
+00256     \}
+00257     \textcolor{keywordflow}{return} -1;
+00258 \}
+00259 
+00260 
+\hypertarget{memory_8cpp_source.tex_l00261}{}\hyperlink{classTranslationLookasideBuffer_a1f92817ce0487d710c6ef5b0176dd358}{00261} \textcolor{keywordtype}{void} \hyperlink{classTranslationLookasideBuffer_a1f92817ce0487d710c6ef5b0176dd358}{TranslationLookasideBuffer::PrintTLB}() \{
+00262     printf(\textcolor{stringliteral}{"\(\backslash\)n\(\backslash\)t\(\backslash\)t\(\backslash\)tTLB\(\backslash\)n"});
+00263     printf(\textcolor{stringliteral}{"\(\backslash\)t%s    %s    %s    %s\(\backslash\)n"},\textcolor{stringliteral}{"[TLB #]"}, \textcolor{stringliteral}{"[Page #]"},\textcolor{stringliteral}{"[Frame #]"}, \textcolor{stringliteral}{"[Valid?]"});
+00264     printf(\textcolor{stringliteral}{"\(\backslash\)t%s"},\textcolor{stringliteral}{"-------------------------------------------\(\backslash\)n"});
+00265     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{TLB\_ENTRIES}; i++) \{
+00266         \textcolor{keywordflow}{if} (pagecol[i] != -1)
+00267              printf(\textcolor{stringliteral}{"\(\backslash\)t%d\(\backslash\)t     %d\(\backslash\)t         %d\(\backslash\)t        %d\(\backslash\)n"}, i, pagecol[i], framecol[i],occupied[i]);
+00268         \textcolor{keywordflow}{else}
+00269             printf(\textcolor{stringliteral}{"\(\backslash\)t%d\(\backslash\)t     %s\(\backslash\)t         %s\(\backslash\)t        %d\(\backslash\)n"}, i, \textcolor{stringliteral}{"-"}, \textcolor{stringliteral}{"-"},occupied[i]);
+00270     \}
+00271     printf(\textcolor{stringliteral}{"\(\backslash\)tFIFO List (top->bottom): "});
+00272     std::queue<int> qcopy = FIFO\_tlb;
+00273     \textcolor{keywordflow}{for}(uint32\_t i = 0; i < qcopy.size(); i++) \{
+00274         printf(\textcolor{stringliteral}{"\{%d\}"}, qcopy.front());
+00275         qcopy.pop();
+00276     \}
+00277     printf(\textcolor{stringliteral}{"\(\backslash\)n"});
+00278 \}
+00279 \textcolor{comment}{/*=====  End of TranslationLookasideBuffer  ======*/}
+00280 
+00281 
+00282 
+00283 
+00284 
+00285 
+00286 
+00287 \textcolor{comment}{/*=====================================}
+00288 \textcolor{comment}{=            MemoryManager            =}
+00289 \textcolor{comment}{=====================================*/}
+00290 
+\hypertarget{memory_8cpp_source.tex_l00291}{}\hyperlink{classMemoryManager_ae925e8ad4d8fe6f0565e9d5729f59593}{00291} \hyperlink{classMemoryManager_ae925e8ad4d8fe6f0565e9d5729f59593}{MemoryManager::MemoryManager}() \{
+00292     backend\_store\_filename = (\textcolor{keywordtype}{char}*) malloc(\textcolor{keyword}{sizeof}(\textcolor{keywordtype}{char}) * \hyperlink{memory_8h_a502fddf4e42292e4318a924b6b3b7759}{BACKEND\_FN\_CHARS});
+00293     strcpy(backend\_store\_filename, \hyperlink{memory_8h_a478707addabe7b0aedaa632b70394d75}{BACKEND\_FN});
+00294     total\_accesses = 0;
+00295     page\_faults = 0;
+00296     tlb\_hitrate = 0;
+00297 \}
+00298 
+\hypertarget{memory_8cpp_source.tex_l00299}{}\hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{00299} \textcolor{keywordtype}{char} \hyperlink{classMemoryManager_a4a716fc46ee321ebb25bd54bcc9d0524}{MemoryManager::ReadMemory}(\textcolor{keywordtype}{int} addr) \{
+00300     \textcolor{keywordflow}{if} (addr > \hyperlink{memory_8h_a391c8595be4da3b3f1cd95918b89da2c}{VIRTUAL\_ADDRESS\_MAX} || addr < 0) \{
+00301         fprintf(stderr, \textcolor{stringliteral}{"SEGFAULT at address %d\(\backslash\)n"}, addr);
+00302         exit(EXIT\_FAILURE);
+00303     \}
+00304     total\_accesses += 1;
+00305     \hyperlink{structMemoryPairAddress__t}{MemoryPairAddress\_t} mempair\_virtual = 
+      \hyperlink{memory_8cpp_a90bdb77a86b4a78c22b50e250b77d9ad}{ConvertAddressFormat}(addr);
+00306 
+00307     \hyperlink{structTLBReturnData__t}{TLBReturnData\_t} frame\_from\_tlb = tlb.LookupTLBFrame(mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P});
+00308   
+00309     \textcolor{keywordflow}{if}(frame\_from\_tlb.\hyperlink{structTLBReturnData__t_ac4bdfa0ee74b50048e94321426877439}{frame} != -1 )\{ 
+00310         \textcolor{comment}{// If the frame was found in the TLB}
+00311         \textcolor{comment}{//      1. Get the contents in memory}
+00312         \textcolor{comment}{//      2. Update the page table LRU}
+00313         tlb\_hitrate += 1;
+00314         printf(\textcolor{stringliteral}{" ---> Virtual Address \{%d\} contained in page \{%d\}, frame \{%d\} found at TLB Entry \{%d\}\(\backslash\)n"},
+      addr, mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, frame\_from\_tlb.\hyperlink{structTLBReturnData__t_a58914c8a985e6cdb2f48a56ab41a6985}{entry}, frame\_from\_tlb.\hyperlink{structTLBReturnData__t_ac4bdfa0ee74b50048e94321426877439}{frame});
+00315         page\_table.UpdateLRUList(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P});
+00316         \textcolor{keywordtype}{char} contents = physical\_memory.GetMemoryContents(frame\_from\_tlb.\hyperlink{structTLBReturnData__t_ac4bdfa0ee74b50048e94321426877439}{frame}, mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_ad608e86288286889c2658e8043414edf}{d});
+00317         \textcolor{keywordflow}{return} contents;
+00318 
+00319     \} \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (page\_table.PageIsValid(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P})) \{
+00320         printf(\textcolor{stringliteral}{" ---> Virtual address \{%d\} contained in page \{%d\} is not in the TLB\(\backslash\)n"},addr, 
+      mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P});
+00321         \textcolor{comment}{// If the page is valid:}
+00322         \textcolor{comment}{//      1. Lookup the frame in the page table}
+00323         \textcolor{comment}{//      2. Access the memory at (frame, d)}
+00324         \textcolor{comment}{//      3. Update the TLB}
+00325 
+00326         \textcolor{keywordtype}{int} frame = page\_table.LookupPage(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P});
+00327         \textcolor{keywordtype}{char} contents = physical\_memory.GetMemoryContents(frame, mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_ad608e86288286889c2658e8043414edf}{d});
+00328         printf(\textcolor{stringliteral}{" ---> Virtual address \{%d\} is contained in page \{%d\}, frame \{%d\}\(\backslash\)n"}, addr, mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, frame);
+00329         \textcolor{keywordtype}{int} tlbval = tlb.UpdateTLB(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, frame);
+00330         printf(\textcolor{stringliteral}{" ---> TLB now has page \{%d\}, frame \{%d\} at index \{%d\}\(\backslash\)n"}, mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, frame, tlbval);
+00331         \textcolor{keywordflow}{return} contents;
+00332     \} \textcolor{keywordflow}{else} \{
+00333         printf(\textcolor{stringliteral}{" ---> Virtual address \{%d\} contained in page \{%d\} is not in the TLB\(\backslash\)n"},addr, 
+      mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P});
+00334         printf(\textcolor{stringliteral}{" ---> Virtual address \{%d\} contained in page \{%d\} causes a page fault\(\backslash\)n"},addr, 
+      mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P});
+00335         page\_faults += 1;
+00336         \textcolor{keywordflow}{if}(physical\_memory.isFull()) \{
+00337             printf(\textcolor{stringliteral}{" ---> Physical Memory Full! Taking corrective action...\(\backslash\)n"});
+00338             \textcolor{comment}{// If the page is invalid and the memory is full:}
+00339             \textcolor{comment}{//      1. Load the page from the memory file}
+00340             \textcolor{comment}{//      2. Find the LRU Page and extract its frame}
+00341             \textcolor{comment}{//      3. PageOut() the page}
+00342             \textcolor{comment}{//      4. PageIn() the desired page in the right frame}
+00343             \textcolor{comment}{//      5. Update the page table and LRU list}
+00344             \textcolor{comment}{//      6. Update the TLB}
+00345             \textcolor{comment}{// (1) Load page from memory}
+00346             
+00347             \textcolor{keywordtype}{char}* page\_to\_load = \textcolor{keyword}{new} \textcolor{keywordtype}{char}[\hyperlink{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}{PAGE\_SIZE}];
+00348             FileSeek(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, page\_to\_load);
+00349 
+00350             \textcolor{comment}{// (2) find the LRU page}
+00351             \textcolor{keywordtype}{int} lru\_page = page\_table.GetLRUPage();
+00352             \textcolor{keywordtype}{int} target\_frame = page\_table.LookupPage\_no\_LRU(lru\_page);
+00353 
+00354             \textcolor{comment}{// (3) Pageout() the corresponding frame}
+00355             physical\_memory.PageOut(target\_frame);
+00356             page\_table.PageOut\_table(lru\_page);
+00357             printf(\textcolor{stringliteral}{" ---> Paging out LRU page \{%d\}\(\backslash\)n"}, lru\_page);
+00358 
+00359             \textcolor{comment}{// (4) PageIn() the desired frame}
+00360             physical\_memory.PageIn(target\_frame, page\_to\_load);
+00361             \textcolor{comment}{// (5) update the page table}
+00362             page\_table.SetPageToFrame(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, target\_frame);
+00363             printf(\textcolor{stringliteral}{" ---> Paging in page \{%d\} to frame \{%d\}\(\backslash\)n"}, mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, target\_frame);
+00364             page\_table.UpdateLRUList(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P});
+00365             \textcolor{keywordtype}{int} tlbval = tlb.UpdateTLB(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, target\_frame);
+00366             printf(\textcolor{stringliteral}{" ---> TLB now has page \{%d\}, frame \{%d\} at index \{%d\}\(\backslash\)n"}, mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, target\_frame, tlbval);
+00367             \textcolor{keyword}{delete}[] page\_to\_load;
+00368             \textcolor{keywordflow}{return} physical\_memory.GetMemoryContents(target\_frame, mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_ad608e86288286889c2658e8043414edf}{d});
+00369         \} \textcolor{keywordflow}{else} \{
+00370             \textcolor{comment}{// If the page is invalid and the memory isn't full:}
+00371             \textcolor{comment}{//      1. Load the page from the memory file}
+00372             \textcolor{comment}{//      2. Find the first avaialable frame}
+00373             \textcolor{comment}{//      3. PageIn() the data}
+00374             \textcolor{comment}{//      4. Update the page table for this page with the frame found in (2)}
+00375             \textcolor{comment}{//      5. Update the TLB}
+00376             
+00377             \textcolor{comment}{// (1): Load page from memory}
+00378             \textcolor{keywordtype}{char}* page\_to\_load = \textcolor{keyword}{new} \textcolor{keywordtype}{char}[\hyperlink{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}{PAGE\_SIZE}];
+00379             FileSeek(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, page\_to\_load);
+00380 
+00381             \textcolor{comment}{// (2): Find the first available frame}
+00382             \textcolor{keywordtype}{int} available\_frame = physical\_memory.FindFirstFrame();
+00383 
+00384             \textcolor{comment}{// (3): PageIn the data}
+00385             physical\_memory.PageIn(available\_frame, page\_to\_load);
+00386             printf(\textcolor{stringliteral}{" ---> Page \{%d\} paged into frame \{%d\}\(\backslash\)n"},mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, available\_frame);
+00387 
+00388             \textcolor{comment}{// (4): Update the page table}
+00389             page\_table.SetPageToFrame(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, available\_frame);
+00390             page\_table.UpdateLRUList(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P});
+00391             \textcolor{keywordtype}{int} tlbval = tlb.UpdateTLB(mempair\_virtual.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, available\_frame);
+00392             printf(\textcolor{stringliteral}{" ---> TLB now has page \{%d\}, frame \{%d\} at index \{%d\}\(\backslash\)n"}, mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, available\_frame, tlbval);
+00393             \textcolor{keyword}{delete}[] page\_to\_load;
+00394             \textcolor{keywordflow}{return} physical\_memory.GetMemoryContents(available\_frame, mempair\_virtual.
+      \hyperlink{structMemoryPairAddress__t_ad608e86288286889c2658e8043414edf}{d});
+00395 
+00396         \}
+00397     \}
+00398     cout << \textcolor{stringliteral}{"Memory Manager control flow failed (?!)"} << endl;
+00399     exit(EXIT\_FAILURE);
+00400     \textcolor{keywordflow}{return} 0xAA;
+00401 \}
+00402 
+\hypertarget{memory_8cpp_source.tex_l00403}{}\hyperlink{classMemoryManager_a905ceff7ad39c05c2d965af613156547}{00403} \textcolor{keywordtype}{int} \hyperlink{classMemoryManager_a905ceff7ad39c05c2d965af613156547}{MemoryManager::TranslateAddress}(\textcolor{keywordtype}{int} addr) \{
+00404     \textcolor{keywordflow}{return} 0;
+00405 \}
+00406 
+00407 \textcolor{keywordtype}{void} MemoryManager::FileSeek(\textcolor{keywordtype}{int} fpage, \textcolor{keywordtype}{char}* dest) \{
+00408     ifstream infs;
+00409     \textcolor{comment}{// uint32\_t buffer[PAGE\_SIZE];}
+00410 
+00411     infs.open(\hyperlink{memory_8h_a478707addabe7b0aedaa632b70394d75}{BACKEND\_FN}, ios::binary);
+00412     \textcolor{keywordflow}{if}(infs.is\_open()) \{
+00413         infs.seekg(fpage*\hyperlink{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}{PAGE\_SIZE}*4); \textcolor{comment}{// 4 bytes/uint32\_t}
+00414         \textcolor{comment}{// infs.read((char*) buffer, PAGE\_SIZE*4);}
+00415         \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int} i = 0; i < \hyperlink{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}{PAGE\_SIZE}; i++) \{
+00416             infs.read(dest+i, 1);
+00417         \}
+00418         infs.close();
+00419     \} \textcolor{keywordflow}{else} \{
+00420         fprintf(stderr, \textcolor{stringliteral}{"%s %s\(\backslash\)n"}, \textcolor{stringliteral}{"Couldn't open "}, \hyperlink{memory_8h_a478707addabe7b0aedaa632b70394d75}{BACKEND\_FN});
+00421     \}
+00422 \}
+00423 
+\hypertarget{memory_8cpp_source.tex_l00424}{}\hyperlink{classMemoryManager_aa7437efdc1ebd09895d451e2c521857a}{00424} \textcolor{keywordtype}{void} \hyperlink{classMemoryManager_aa7437efdc1ebd09895d451e2c521857a}{MemoryManager::PrintPageTable}() \{
+00425     page\_table.PrintPageTable();
+00426 \}
+00427 
+\hypertarget{memory_8cpp_source.tex_l00428}{}\hyperlink{classMemoryManager_a4bc5f491976e5253bf00a07a71b55ef6}{00428} \textcolor{keywordtype}{void} \hyperlink{classMemoryManager_a4bc5f491976e5253bf00a07a71b55ef6}{MemoryManager::PrintTLB}() \{
+00429     tlb.PrintTLB();
+00430 \}
+00431 
+\hypertarget{memory_8cpp_source.tex_l00432}{}\hyperlink{classMemoryManager_ae7bbb5231788516ca34caca3d428b0ef}{00432} \textcolor{keywordtype}{void} \hyperlink{classMemoryManager_ae7bbb5231788516ca34caca3d428b0ef}{MemoryManager::PrintAll}() \{
+00433     this->PrintTLB();
+00434     this->PrintPageTable();
+00435 \}
+00436 
+\hypertarget{memory_8cpp_source.tex_l00437}{}\hyperlink{classMemoryManager_a231141529c907c50de129169f16bedf1}{00437} \textcolor{keywordtype}{void} \hyperlink{classMemoryManager_a231141529c907c50de129169f16bedf1}{MemoryManager::PrintInversePageTable}()\{
+00438     page\_table.PrintInversePageTable();
+00439 \}
+00440 
+\hypertarget{memory_8cpp_source.tex_l00441}{}\hyperlink{classMemoryManager_ad0c7c13901cb9c6844aebf6bf9238c47}{00441} \textcolor{keywordtype}{void} \hyperlink{classMemoryManager_ad0c7c13901cb9c6844aebf6bf9238c47}{MemoryManager::PrintStats}() \{
+00442     cout << \textcolor{stringliteral}{"\(\backslash\)t"} << \textcolor{stringliteral}{"Page Faults/Accesses: \(\backslash\)t"} << page\_faults << \textcolor{stringliteral}{"/"} << total\_accesses << endl;
+00443     cout << \textcolor{stringliteral}{"\(\backslash\)t"} << \textcolor{stringliteral}{"TLB Hits/Accesses: \(\backslash\)t\(\backslash\)t"} << tlb\_hitrate << \textcolor{stringliteral}{"/"} << total\_accesses << endl;
+00444 \}
+00445 \textcolor{comment}{/*=====  End of MemoryManager  ======*/}
+00446 
+00447 
+00448 
+00449 
+00450 
+00451 
+00452 \textcolor{comment}{/*========================================}
+00453 \textcolor{comment}{=            Helper Functions            =}
+00454 \textcolor{comment}{========================================*/}
+00455 
+00456 
+\hypertarget{memory_8cpp_source.tex_l00457}{}\hyperlink{memory_8h_a90bdb77a86b4a78c22b50e250b77d9ad}{00457} \hyperlink{structMemoryPairAddress__t}{MemoryPairAddress\_t} \hyperlink{memory_8cpp_a90bdb77a86b4a78c22b50e250b77d9ad}{ConvertAddressFormat}(\textcolor{keywordtype}{int} addr) \{
+00458     \hyperlink{structMemoryPairAddress__t}{MemoryPairAddress\_t} mempair;
+00459     uint16\_t addr\_16 = (uint16\_t) addr;
+00460     mempair.\hyperlink{structMemoryPairAddress__t_ad608e86288286889c2658e8043414edf}{d} = addr\_16 & 0x00FF;
+00461     mempair.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P} = (addr\_16 & 0x0F00) >> 8; 
+00462     \textcolor{keywordflow}{return} mempair;
+00463 \}
+00464 
+\hypertarget{memory_8cpp_source.tex_l00465}{}\hyperlink{memory_8h_ac93b824d9e950d90189b96ba89151512}{00465} \textcolor{keywordtype}{void} \hyperlink{memory_8cpp_ac93b824d9e950d90189b96ba89151512}{PrintMemoryPairAddress}(\hyperlink{structMemoryPairAddress__t}{MemoryPairAddress\_t} mempair) \{
+00466     printf(\textcolor{stringliteral}{"(%d,%d)\(\backslash\)n"}, mempair.\hyperlink{structMemoryPairAddress__t_a5bc11426b27565b959f280dd1a18b080}{P}, mempair.\hyperlink{structMemoryPairAddress__t_ad608e86288286889c2658e8043414edf}{d});
+00467 \}
+00468 
+00469 \textcolor{comment}{/*=====  End of Helper Functions  ======*/}
+\end{DoxyCode}

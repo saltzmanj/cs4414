@@ -1,0 +1,172 @@
+\hypertarget{memory_8h}{}\section{src/memory.h File Reference}
+\label{memory_8h}\index{src/memory.\+h@{src/memory.\+h}}
+{\ttfamily \#include $<$iostream$>$}\\*
+{\ttfamily \#include $<$stdint.\+h$>$}\\*
+{\ttfamily \#include $<$cstdio$>$}\\*
+{\ttfamily \#include $<$stdlib.\+h$>$}\\*
+{\ttfamily \#include $<$string.\+h$>$}\\*
+{\ttfamily \#include $<$vector$>$}\\*
+{\ttfamily \#include $<$queue$>$}\\*
+{\ttfamily \#include $<$fstream$>$}\\*
+Include dependency graph for memory.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{memory_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=258pt]{memory_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classPhysicalMemory}{Physical\+Memory}
+\begin{DoxyCompactList}\small\item\em Imitates a physical memory. \end{DoxyCompactList}\item 
+class \hyperlink{classPageTable}{Page\+Table}
+\begin{DoxyCompactList}\small\item\em Page table holding page/frame pairs. \end{DoxyCompactList}\item 
+struct \hyperlink{structMemoryPairAddress__t}{Memory\+Pair\+Address\+\_\+t}
+\item 
+struct \hyperlink{structTLBReturnData__t}{T\+L\+B\+Return\+Data\+\_\+t}
+\item 
+class \hyperlink{classTranslationLookasideBuffer}{Translation\+Lookaside\+Buffer}
+\item 
+class \hyperlink{classMemoryManager}{Memory\+Manager}
+\begin{DoxyCompactList}\small\item\em A memory management unit. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{memory_8h_af6463c112a252cbb29636eef8ae9e6dc}{E\+N\+A\+B\+L\+E\+\_\+\+L\+RU}
+\item 
+\#define \hyperlink{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}{F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE}~256
+\item 
+\#define \hyperlink{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}{P\+A\+G\+E\+\_\+\+S\+I\+ZE}~256
+\item 
+\#define \hyperlink{memory_8h_a0b0ce802de0cae773522024d7626b007}{N\+\_\+\+F\+R\+A\+M\+ES}~8
+\item 
+\#define \hyperlink{memory_8h_a6fc2e8cefe03a42d0a238bad856a2a8b}{P\+A\+G\+E\+\_\+\+T\+A\+B\+L\+E\+\_\+\+E\+N\+T\+R\+I\+ES}~16
+\item 
+\#define \hyperlink{memory_8h_a478707addabe7b0aedaa632b70394d75}{B\+A\+C\+K\+E\+N\+D\+\_\+\+FN}~\char`\"{}B\+A\+C\+K\+I\+N\+G\+\_\+\+S\+T\+O\+R\+E.\+bin\char`\"{}
+\item 
+\#define \hyperlink{memory_8h_a502fddf4e42292e4318a924b6b3b7759}{B\+A\+C\+K\+E\+N\+D\+\_\+\+F\+N\+\_\+\+C\+H\+A\+RS}~18
+\item 
+\#define \hyperlink{memory_8h_a391c8595be4da3b3f1cd95918b89da2c}{V\+I\+R\+T\+U\+A\+L\+\_\+\+A\+D\+D\+R\+E\+S\+S\+\_\+\+M\+AX}~4095
+\item 
+\#define \hyperlink{memory_8h_a49009cc208379999b117ed68da61c759}{T\+L\+B\+\_\+\+E\+N\+T\+R\+I\+ES}~4
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structMemoryPairAddress__t}{Memory\+Pair\+Address\+\_\+t} \hyperlink{memory_8h_a90bdb77a86b4a78c22b50e250b77d9ad}{Convert\+Address\+Format} (int addr)
+\begin{DoxyCompactList}\small\item\em Convert a base-\/10 address to (P, d) format. \end{DoxyCompactList}\item 
+void \hyperlink{memory_8h_ac93b824d9e950d90189b96ba89151512}{Print\+Memory\+Pair\+Address} (\hyperlink{structMemoryPairAddress__t}{Memory\+Pair\+Address\+\_\+t} mempair)
+\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{memory.\+h@{memory.\+h}!B\+A\+C\+K\+E\+N\+D\+\_\+\+FN@{B\+A\+C\+K\+E\+N\+D\+\_\+\+FN}}
+\index{B\+A\+C\+K\+E\+N\+D\+\_\+\+FN@{B\+A\+C\+K\+E\+N\+D\+\_\+\+FN}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{B\+A\+C\+K\+E\+N\+D\+\_\+\+FN}{BACKEND_FN}}]{\setlength{\rightskip}{0pt plus 5cm}\#define B\+A\+C\+K\+E\+N\+D\+\_\+\+FN~\char`\"{}B\+A\+C\+K\+I\+N\+G\+\_\+\+S\+T\+O\+R\+E.\+bin\char`\"{}}\hypertarget{memory_8h_a478707addabe7b0aedaa632b70394d75}{}\label{memory_8h_a478707addabe7b0aedaa632b70394d75}
+
+
+Definition at line \hyperlink{memory_8h_source_l00021}{21} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+\index{memory.\+h@{memory.\+h}!B\+A\+C\+K\+E\+N\+D\+\_\+\+F\+N\+\_\+\+C\+H\+A\+RS@{B\+A\+C\+K\+E\+N\+D\+\_\+\+F\+N\+\_\+\+C\+H\+A\+RS}}
+\index{B\+A\+C\+K\+E\+N\+D\+\_\+\+F\+N\+\_\+\+C\+H\+A\+RS@{B\+A\+C\+K\+E\+N\+D\+\_\+\+F\+N\+\_\+\+C\+H\+A\+RS}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{B\+A\+C\+K\+E\+N\+D\+\_\+\+F\+N\+\_\+\+C\+H\+A\+RS}{BACKEND_FN_CHARS}}]{\setlength{\rightskip}{0pt plus 5cm}\#define B\+A\+C\+K\+E\+N\+D\+\_\+\+F\+N\+\_\+\+C\+H\+A\+RS~18}\hypertarget{memory_8h_a502fddf4e42292e4318a924b6b3b7759}{}\label{memory_8h_a502fddf4e42292e4318a924b6b3b7759}
+
+
+Definition at line \hyperlink{memory_8h_source_l00022}{22} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+\index{memory.\+h@{memory.\+h}!E\+N\+A\+B\+L\+E\+\_\+\+L\+RU@{E\+N\+A\+B\+L\+E\+\_\+\+L\+RU}}
+\index{E\+N\+A\+B\+L\+E\+\_\+\+L\+RU@{E\+N\+A\+B\+L\+E\+\_\+\+L\+RU}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{E\+N\+A\+B\+L\+E\+\_\+\+L\+RU}{ENABLE_LRU}}]{\setlength{\rightskip}{0pt plus 5cm}\#define E\+N\+A\+B\+L\+E\+\_\+\+L\+RU}\hypertarget{memory_8h_af6463c112a252cbb29636eef8ae9e6dc}{}\label{memory_8h_af6463c112a252cbb29636eef8ae9e6dc}
+
+
+Definition at line \hyperlink{memory_8h_source_l00014}{14} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+\index{memory.\+h@{memory.\+h}!F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE@{F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE}}
+\index{F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE@{F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE}{FRAME_SIZE}}]{\setlength{\rightskip}{0pt plus 5cm}\#define F\+R\+A\+M\+E\+\_\+\+S\+I\+ZE~256}\hypertarget{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}{}\label{memory_8h_af9b1b2ba12857a4bf11289dac8c5462d}
+
+
+Definition at line \hyperlink{memory_8h_source_l00015}{15} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+\index{memory.\+h@{memory.\+h}!N\+\_\+\+F\+R\+A\+M\+ES@{N\+\_\+\+F\+R\+A\+M\+ES}}
+\index{N\+\_\+\+F\+R\+A\+M\+ES@{N\+\_\+\+F\+R\+A\+M\+ES}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{N\+\_\+\+F\+R\+A\+M\+ES}{N_FRAMES}}]{\setlength{\rightskip}{0pt plus 5cm}\#define N\+\_\+\+F\+R\+A\+M\+ES~8}\hypertarget{memory_8h_a0b0ce802de0cae773522024d7626b007}{}\label{memory_8h_a0b0ce802de0cae773522024d7626b007}
+
+
+Definition at line \hyperlink{memory_8h_source_l00017}{17} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+\index{memory.\+h@{memory.\+h}!P\+A\+G\+E\+\_\+\+S\+I\+ZE@{P\+A\+G\+E\+\_\+\+S\+I\+ZE}}
+\index{P\+A\+G\+E\+\_\+\+S\+I\+ZE@{P\+A\+G\+E\+\_\+\+S\+I\+ZE}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{P\+A\+G\+E\+\_\+\+S\+I\+ZE}{PAGE_SIZE}}]{\setlength{\rightskip}{0pt plus 5cm}\#define P\+A\+G\+E\+\_\+\+S\+I\+ZE~256}\hypertarget{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}{}\label{memory_8h_a7d467c1d283fdfa1f2081ba1e0d01b6e}
+
+
+Definition at line \hyperlink{memory_8h_source_l00016}{16} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+\index{memory.\+h@{memory.\+h}!P\+A\+G\+E\+\_\+\+T\+A\+B\+L\+E\+\_\+\+E\+N\+T\+R\+I\+ES@{P\+A\+G\+E\+\_\+\+T\+A\+B\+L\+E\+\_\+\+E\+N\+T\+R\+I\+ES}}
+\index{P\+A\+G\+E\+\_\+\+T\+A\+B\+L\+E\+\_\+\+E\+N\+T\+R\+I\+ES@{P\+A\+G\+E\+\_\+\+T\+A\+B\+L\+E\+\_\+\+E\+N\+T\+R\+I\+ES}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{P\+A\+G\+E\+\_\+\+T\+A\+B\+L\+E\+\_\+\+E\+N\+T\+R\+I\+ES}{PAGE_TABLE_ENTRIES}}]{\setlength{\rightskip}{0pt plus 5cm}\#define P\+A\+G\+E\+\_\+\+T\+A\+B\+L\+E\+\_\+\+E\+N\+T\+R\+I\+ES~16}\hypertarget{memory_8h_a6fc2e8cefe03a42d0a238bad856a2a8b}{}\label{memory_8h_a6fc2e8cefe03a42d0a238bad856a2a8b}
+
+
+Definition at line \hyperlink{memory_8h_source_l00019}{19} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+\index{memory.\+h@{memory.\+h}!T\+L\+B\+\_\+\+E\+N\+T\+R\+I\+ES@{T\+L\+B\+\_\+\+E\+N\+T\+R\+I\+ES}}
+\index{T\+L\+B\+\_\+\+E\+N\+T\+R\+I\+ES@{T\+L\+B\+\_\+\+E\+N\+T\+R\+I\+ES}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{T\+L\+B\+\_\+\+E\+N\+T\+R\+I\+ES}{TLB_ENTRIES}}]{\setlength{\rightskip}{0pt plus 5cm}\#define T\+L\+B\+\_\+\+E\+N\+T\+R\+I\+ES~4}\hypertarget{memory_8h_a49009cc208379999b117ed68da61c759}{}\label{memory_8h_a49009cc208379999b117ed68da61c759}
+
+
+Definition at line \hyperlink{memory_8h_source_l00026}{26} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+\index{memory.\+h@{memory.\+h}!V\+I\+R\+T\+U\+A\+L\+\_\+\+A\+D\+D\+R\+E\+S\+S\+\_\+\+M\+AX@{V\+I\+R\+T\+U\+A\+L\+\_\+\+A\+D\+D\+R\+E\+S\+S\+\_\+\+M\+AX}}
+\index{V\+I\+R\+T\+U\+A\+L\+\_\+\+A\+D\+D\+R\+E\+S\+S\+\_\+\+M\+AX@{V\+I\+R\+T\+U\+A\+L\+\_\+\+A\+D\+D\+R\+E\+S\+S\+\_\+\+M\+AX}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{V\+I\+R\+T\+U\+A\+L\+\_\+\+A\+D\+D\+R\+E\+S\+S\+\_\+\+M\+AX}{VIRTUAL_ADDRESS_MAX}}]{\setlength{\rightskip}{0pt plus 5cm}\#define V\+I\+R\+T\+U\+A\+L\+\_\+\+A\+D\+D\+R\+E\+S\+S\+\_\+\+M\+AX~4095}\hypertarget{memory_8h_a391c8595be4da3b3f1cd95918b89da2c}{}\label{memory_8h_a391c8595be4da3b3f1cd95918b89da2c}
+
+
+Definition at line \hyperlink{memory_8h_source_l00024}{24} of file \hyperlink{memory_8h_source}{memory.\+h}.
+
+
+
+\subsection{Function Documentation}
+\index{memory.\+h@{memory.\+h}!Convert\+Address\+Format@{Convert\+Address\+Format}}
+\index{Convert\+Address\+Format@{Convert\+Address\+Format}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{Convert\+Address\+Format(int addr)}{ConvertAddressFormat(int addr)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Memory\+Pair\+Address\+\_\+t} Convert\+Address\+Format (
+\begin{DoxyParamCaption}
+\item[{int}]{addr}
+\end{DoxyParamCaption}
+)}\hypertarget{memory_8h_a90bdb77a86b4a78c22b50e250b77d9ad}{}\label{memory_8h_a90bdb77a86b4a78c22b50e250b77d9ad}
+
+
+Convert a base-\/10 address to (P, d) format. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em int} & base-\/10 address to translate \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyRetVals}{Return values}
+{\em \hyperlink{structMemoryPairAddress__t}{Memory\+Pair\+Address\+\_\+t}} & (P, d) pair corresponding to the address \\
+\hline
+\end{DoxyRetVals}
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00457}{457} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
+\index{memory.\+h@{memory.\+h}!Print\+Memory\+Pair\+Address@{Print\+Memory\+Pair\+Address}}
+\index{Print\+Memory\+Pair\+Address@{Print\+Memory\+Pair\+Address}!memory.\+h@{memory.\+h}}
+\subsubsection[{\texorpdfstring{Print\+Memory\+Pair\+Address(\+Memory\+Pair\+Address\+\_\+t mempair)}{PrintMemoryPairAddress(MemoryPairAddress_t mempair)}}]{\setlength{\rightskip}{0pt plus 5cm}void Print\+Memory\+Pair\+Address (
+\begin{DoxyParamCaption}
+\item[{{\bf Memory\+Pair\+Address\+\_\+t}}]{mempair}
+\end{DoxyParamCaption}
+)}\hypertarget{memory_8h_ac93b824d9e950d90189b96ba89151512}{}\label{memory_8h_ac93b824d9e950d90189b96ba89151512}
+
+
+Definition at line \hyperlink{memory_8cpp_source_l00465}{465} of file \hyperlink{memory_8cpp_source}{memory.\+cpp}.
+
