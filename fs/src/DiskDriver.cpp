@@ -1,22 +1,25 @@
-#include "jfs.h"
+#include "DiskDriver.h"
 
 /*==================================
 =            DiskDriver            =
 ==================================*/
 
-DiskDriver::DiskDriver(string diskfname) {
-	this.disk_name = diskfname;
-	make_disk(this.diskname.c_str())
+DiskDriver::DiskDriver() {
+
 }
 
 DiskDriver::~DiskDriver() {
-	close_disk();
+	// close_disk();
+}
+
+int DiskDriver::MakeDisk(char* disk_name) {
+	make_disk(disk_name);
 }
 
 int DiskDriver::WriteBlock(int block, char* buf) {
 	// TODO: DiskDriver::WriteBlock 
 	int r;
-	r = block_read(block, buf)
+	r = block_read(block, buf);
 	return r;
 }
 
