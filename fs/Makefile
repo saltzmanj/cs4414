@@ -23,7 +23,7 @@ default: $(SOURCE_DIR)/$(MAIN_FN) DiskDriver.o disk.o fileManager.o FileSystem.o
 	$(CPPC) $(O_DIR)/*.o $(SOURCE_DIR)/$(MAIN_FN)
 	@echo "JFS Compiled!"
 
-fsmanager: $(SOURCE_DIR)/$(TEST_FN) DiskDriver.o disk.o fileManager.o FileSystem.o
+fsmanager: $(SOURCE_DIR)/$(TEST_FN) DiskDriver.o disk.o fileManager.o FileSystem.o fstypes.o
 	$(CPPC) $(O_DIR)/*.o $(SOURCE_DIR)/$(TEST_FN)
 	@echo "JFS - Test Compiled!"
 
@@ -43,6 +43,9 @@ fileManager.o: $(SOURCE_DIR)/fileManager.h $(SOURCE_DIR)/fileManager.cpp FileSys
 	$(CPPO) $(SOURCE_DIR)/fileManager.cpp
 	@mv fileManager.o $(O_DIR)
 
+fstypes.o: $(SOURCE_DIR)/fstypes.h $(SOURCE_DIR)/fstypes.cpp
+	$(CPPO) $(SOURCE_DIR)/fstypes.cpp
+	@mv fstypes.o $(O_DIR)
 
 clean:
 	rm -f $(O_DIR)/*.*
