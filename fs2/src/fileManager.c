@@ -561,7 +561,36 @@ int fs_write(int filedes, void* buf, size_t nbytes) {
         int existing_bytes = file_to_write->file_len;
         int current_offset = globals.oft.offset[filedes];
         FatTableReturn_t ftr = LookupFATBlocks(&globals.fs, file_to_write);
-        // int fat_space_left = 
+        int fat_space_left = file_to_write->file_len % 16;
+        int new_space = nbytes - fat_space_left;
+
+        memcpy(&globals.fs.data_blocks[ftr.spaces[ftr.nspaces - 1]], buf, nbytes);
+        
+        if(nbytes > fat_space_left) {
+            int nblocks = new_space / 16 + 1;
+            ftr = FindFATTableSpace(&globals.fs, nblocks);
+
+            if(ftr.failed) {
+                debug_print("Not enough space left!");
+                return -1;
+            }
+
+            ReserveFATBlocks(&globals.fs, ftr, file_to_write);
+
+            int bytes_left = new_space;
+            int idx = 0;
+            while(bytes_left > 0) {
+                int bytes_to_copy = 0;
+                if(bytes_left >= 16)
+                    bytes_to_copy = 16;
+                else
+                    bytes_to_copy = bytes_left;
+
+                // TODO : Memcopy for existing files
+                // memcpy(&globals.fs.data_blocks[ftr.spaces[idx]], buf + idx*16 + )
+            } 
+        }
+
 
     }
 
