@@ -104,6 +104,7 @@ void Test5() {
     int fs3 = fs_open("tt0");
     fs_write(fs3, buf2, 18);
     FileSystemLS();
+    FileSystemOFTLS();
     dismount_fs("vdisk5");
 }
 int main() {

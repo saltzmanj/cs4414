@@ -516,41 +516,54 @@ int fs_write(int filedes, void* buf, size_t nbytes) {
         return -1;
     }
     DirectoryBlock_t* file_to_write = LookupFD(&globals.oft, filedes);
-    int nblocks;
+    // If this is an empty file
+    if(file_to_write->file_len == 0) {
+        int nblocks;
 
-    if(nbytes > 512) {
-        debug_print("\tFile too big (%d bytes)\n", nbytes);
-    }
+        if(nbytes > 512) {
+            debug_print("\tFile too big (%d bytes)\n", nbytes);
+        }
 
-    nblocks = nbytes / 16 + 1;
+        nblocks = nbytes / 16 + 1;
 
-    ftr = FindFATTableSpace(&globals.fs, nblocks);
-    if(ftr.failed != 1)
-        printf("\tFound %d blocks starting at block %d\n", nblocks, ftr.spaces[0]);
-    else {
-        debug_print("\tNo free space available!\n");
-        return -1;
-    }
-    ReserveFATBlocks(&globals.fs, ftr, file_to_write);
-    file_to_write->first_block_num = ftr.spaces[0];
+        ftr = FindFATTableSpace(&globals.fs, nblocks);
+        if(ftr.failed != 1)
+            printf("\tFound %d blocks starting at block %d\n", nblocks, ftr.spaces[0]);
+        else {
+            debug_print("\tNo free space available!\n");
+            return -1;
+        }
+        ReserveFATBlocks(&globals.fs, ftr, file_to_write);
+        file_to_write->first_block_num = ftr.spaces[0];
 
-    int bytes_left = nbytes;
-    int idx = 0;
-    while(bytes_left > 0) {
-        int bytes_to_copy = 0;
-        if(bytes_left >= 16)
-            bytes_to_copy = 16;
-        else
-            bytes_to_copy = bytes_left;
+        int bytes_left = nbytes;
+        int idx = 0;
+        while(bytes_left > 0) {
+            int bytes_to_copy = 0;
+            if(bytes_left >= 16)
+                bytes_to_copy = 16;
+            else
+                bytes_to_copy = bytes_left;
 
-        memcpy(&globals.fs.data_blocks[ftr.spaces[idx]], buf + idx*16, bytes_to_copy);
-        idx += 1;
-        bytes_left -= 16;
-    }
+            memcpy(&globals.fs.data_blocks[ftr.spaces[idx]], buf + idx*16, bytes_to_copy);
+            idx += 1;
+            bytes_left -= 16;
+        }
 
-    // Increment file pointer
+        // Increment file pointer
+        
+        globals.oft.offset[filedes] += nbytes;
+        file_to_write->file_len = nbytes;
+        return nbytes;
     
-    globals.oft.offset[filedes] += nbytes;
+    // If the file already exists
+    } else {
+        int existing_bytes = file_to_write->file_len;
+        int current_offset = globals.oft.offset[filedes];
+        FatTableReturn_t ftr = LookupFATBlocks(&globals.fs, file_to_write);
+        // int fat_space_left = 
+
+    }
 
     return 0;
 
