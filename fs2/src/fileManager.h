@@ -9,10 +9,13 @@
 
 #include "disk.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #define debug_print(...) \
     do { if (DEBUG) fprintf(stdout, __VA_ARGS__); } while(0)
 
+#ifndef min_
+    #define min_(a,b) ((a) < (b) ? (a) : (b))
+#endif
 /*==================================
 =            Parameters            =
 ==================================*/
@@ -36,7 +39,7 @@ int fs_create(char* name);
 int fs_open(char* name);
 int fs_close(int fildes);
 int fs_delete(char* name);
-int fs_read(char fildes, void *buf, size_t nbytes);
+int fs_read(int fildes, void *buf, size_t nbytes);
 int fs_write(int fildes, void *buf, size_t nbytes);
 int fs_get_filesize(int fildes);
 int fs_lseek(int fildes, off_t offset);
@@ -99,6 +102,7 @@ typedef struct {
     FileSystem_t    fs;
     OFT_t           oft;
     int             isopen;
+    int             isvalid;
 } GlobalData_t;
 
 /*----------  SuperBlock  ----------*/
@@ -138,7 +142,7 @@ FileSystem_t LoadFileSystem(char* src);
 
 void FileSystemLS();
 int CountFiles(FileSystem_t fsystem);
-
+void FileSystemPrintFAT();
 void FileSystemOFTLS();
 
 typedef struct {

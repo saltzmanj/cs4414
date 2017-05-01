@@ -129,6 +129,24 @@ FileSystem_t LoadFileSystem(char* src) {
 
     memcpy(&fs.super_block, src, 16);
 
+    // sb.dir_start_byte = 0;
+    // sb.dir_end_byte = 8;
+    // sb.fat_start_byte = 9;
+    // sb.fat_end_byte = 16;
+    // sb.data_start_byte = 32;
+    // sb.data_end_byte = 63;
+
+    if(fs.super_block.dir_start_byte    != 0 ||
+       fs.super_block.dir_end_byte      != 8 ||
+       fs.super_block.fat_start_byte    != 9 ||
+       fs.super_block.fat_end_byte      != 16 ||
+       fs.super_block.data_start_byte   != 32 ||
+       fs.super_block.data_end_byte     != 63 ) {
+
+        debug_print("Error: not a valid filesystem\n");
+        globals.isvalid = 0;
+    }
+
     int i;
     for(i = 0; i < DIRECTORY_SIZE; i++) {
         int offset = 16;
@@ -150,7 +168,7 @@ FileSystem_t LoadFileSystem(char* src) {
         dtb = LoadDataBlock(src+offset+i*16);
         fs.data_blocks[i] = dtb;
     }
-
+    globals.isvalid = 1;
     return fs;
 }
 
@@ -188,7 +206,7 @@ FatTableReturn_t FindFATTableSpace(FileSystem_t* fs, int space_wanted) {
     int i;
     int idx = 0;
 
-    if(space_wanted > FAT_SIZE) {
+    if(space_wanted > 512) {
         retstruct.failed = 1;
         return retstruct;
     }
@@ -248,7 +266,7 @@ FatTableReturn_t LookupFATBlocks(FileSystem_t* fs, DirectoryBlock_t* file) {
     int idx = 0;
     ftr.nspaces = 0;
     for(i = 0; i < FAT_SIZE; i++) {
-        if(ftable[i].file_index == file_index){
+        if(ftable[i].file_index == file_index && ftable[i].is_used == 1){
             ftr.spaces[idx] = i;
             idx += 1;
             ftr.nspaces += 1;
@@ -256,61 +274,6 @@ FatTableReturn_t LookupFATBlocks(FileSystem_t* fs, DirectoryBlock_t* file) {
     }
 
     return ftr;
-}
-
-
-
-int make_fs(char* disk_name) {
-    SuperBlock_t sb;
-    FileSystem_t fs;
-    char* blank1024 = (char*) calloc(1024, 1);
-    char buf[1024];
-    memcpy(buf, blank1024, 1024);
-    free(blank1024);
-
-    make_disk(disk_name);
-
-    sb.dir_start_byte = 0;
-    sb.dir_end_byte = 8;
-    sb.fat_start_byte = 9;
-    sb.fat_end_byte = 16;
-    sb.data_start_byte = 32;
-    sb.data_end_byte = 63;
-
-    fs.super_block = sb;
-
-    int i;
-    for(i = 0; i < DIRECTORY_SIZE; i++) {
-        DirectoryBlock_t db;
-        db.is_used = 0;
-        db.first_block_num = 0;
-        fs.directory_blocks[i] = db;
-    }
-
-    for(i = 0; i < FAT_SIZE; i++) {
-        FATBlock_t ft;
-        ft.is_used = 0;
-        ft.file_index = 0;
-        fs.fat_blocks[i] = ft;
-    }
-
-    char* blank = (char*) calloc(DATA_SIZE, 16);
-    for(i = 0; i < DATA_SIZE; i++) {
-        DataBlock_t dt;
-        memcpy(dt.data, blank, 16);
-        fs.data_blocks[i] = dt;
-    }
-
-    SerializeFileSystem(buf, fs);
-    open_disk(disk_name);
-
-    for(i = 0; i < 64; i++) {
-        block_write(i, buf + i*16);
-    }
-
-    close_disk();
-    return 0;
-
 }
 
 int GetFD(OFT_t* oft, DirectoryBlock_t* dptr) {
@@ -349,6 +312,86 @@ DirectoryBlock_t* LookupFD(OFT_t* oft, int filedes) {
     return oft->dirptr[filedes];
 }
 
+void FileSystemPrintFAT() {
+    printf("%s\n", "--- FAT ---");
+    printf("%s\n","Block\tUsed?\tFile");
+    int i;
+    for(i = 0; i < FAT_SIZE; i++) {
+        char strbuf[8] = "-";
+
+        if(globals.fs.fat_blocks[i].is_used == 1) {
+            sprintf(strbuf, "%d", globals.fs.fat_blocks[i].file_index);
+        }
+        printf("%d \t| %d \t| %s\n",
+            i,
+            globals.fs.fat_blocks[i].is_used,
+            strbuf);
+    }
+}
+
+/*==========================================
+=            Core Functionality            =
+==========================================*/
+
+
+int make_fs(char* disk_name) {
+    debug_print(">>> FS_MAKE CALLED\n");
+    if(strlen(disk_name) > 4) {
+        debug_print("Disk name %s too long\n", disk_name);
+        return -1;
+    }
+
+    SuperBlock_t sb;
+    FileSystem_t fs;
+    char* blank1024 = (char*) calloc(1024, 1);
+    char buf[1024];
+    memcpy(buf, blank1024, 1024);
+    free(blank1024);
+
+    make_disk(disk_name);
+
+    sb.dir_start_byte = 0;
+    sb.dir_end_byte = 8;
+    sb.fat_start_byte = 9;
+    sb.fat_end_byte = 16;
+    sb.data_start_byte = 32;
+    sb.data_end_byte = 63;
+
+    fs.super_block = sb;
+
+    int i;
+    for(i = 0; i < DIRECTORY_SIZE; i++) {
+        DirectoryBlock_t db;
+        db.is_used = 0;
+        db.first_block_num = 0;
+        fs.directory_blocks[i] = db;
+    }
+
+    for(i = 0; i < FAT_SIZE; i++) {
+        FATBlock_t ft;
+        ft.is_used = 0;
+        ft.file_index = -1;
+        fs.fat_blocks[i] = ft;
+    }
+
+    char* blank = (char*) calloc(DATA_SIZE, 16);
+    for(i = 0; i < DATA_SIZE; i++) {
+        DataBlock_t dt;
+        memcpy(dt.data, blank, 16);
+        fs.data_blocks[i] = dt;
+    }
+
+    SerializeFileSystem(buf, fs);
+    open_disk(disk_name);
+
+    for(i = 0; i < 64; i++) {
+        block_write(i, buf + i*16);
+    }
+
+    close_disk();
+    return 0;
+}
+
 int mount_fs(char* disk_name) {
     char buf[1024];
 
@@ -365,8 +408,10 @@ int mount_fs(char* disk_name) {
     // Load the file system from the buffer
     globals.fs = LoadFileSystem(buf);
     globals.isopen = 1;
+    if(globals.isvalid == 0) {
+        return -1;
+    }
     return 0;
-
 }
 
 int dismount_fs(char* disk_name) {
@@ -396,13 +441,13 @@ int fs_create(char* name) {
 
     debug_print("\tFitting file: %s \n", name);
     if(CountFiles(globals.fs) == 8){
-        debug_print("\tFit failed; directory full");
+        debug_print("\tFit failed; directory full\n");
         return -1;
         }
 
     for(i = 0; i < DIRECTORY_SIZE; i++) {
         if(strcmp(globals.fs.directory_blocks[i].filename, name) == 0){
-           debug_print("\tFit failed; file already exists");
+           debug_print("\tFit failed; file already exists\n");
            return -1;
         }
         if(globals.fs.directory_blocks[i].is_used == 0 && fflag){
@@ -425,7 +470,6 @@ int fs_create(char* name) {
     dtarget->file_len = 0;
     memcpy(dtarget->filename, name, 5);
     return 0;
-
 }
 
 int fs_open(char* name) {
@@ -451,19 +495,23 @@ int fs_open(char* name) {
 
 int fs_close(int filedes) {
     debug_print(">>> FS_CLOSE CALLED\n");
+    if(filedes < 0 || filedes > 5)
+        return -1;
+    if(globals.oft.open[filedes] != 1) {
+        return -1;
+    }
     DirectoryBlock_t* dr = LookupFD(&globals.oft, filedes);
     // dr->is_used = 0;
 
     debug_print("\tClosing file %s, (fd %d)...\n", dr->filename,filedes);
     
     int cstatus = ClearFD(&globals.oft, filedes);
-    if(cstatus == -1)
+    if(cstatus == -1){
         debug_print("\tfs_close failed; no file in OFT\n");
         return -1;
-
+    }
 
     return 0;
-
 }
 
 int fs_delete(char* name) {
@@ -501,6 +549,7 @@ int fs_delete(char* name) {
 
     for(i = 0; i < ftr.nspaces; i++) {
         globals.fs.fat_blocks[ftr.spaces[i]].is_used = 0;
+        globals.fs.fat_blocks[ftr.spaces[i]].file_index = -1;
     }
     return 0;
 
@@ -521,14 +570,15 @@ int fs_write(int filedes, void* buf, size_t nbytes) {
         int nblocks;
 
         if(nbytes > 512) {
-            debug_print("\tFile too big (%d bytes)\n", nbytes);
+            debug_print("\tFile too big (%d bytes)\n", (int) nbytes);
+            return -1;
         }
 
         nblocks = nbytes / 16 + 1;
 
         ftr = FindFATTableSpace(&globals.fs, nblocks);
         if(ftr.failed != 1)
-            printf("\tFound %d blocks starting at block %d\n", nblocks, ftr.spaces[0]);
+            debug_print("\tFound %d blocks starting at block %d\n", nblocks, ftr.spaces[0]);
         else {
             debug_print("\tNo free space available!\n");
             return -1;
@@ -545,7 +595,10 @@ int fs_write(int filedes, void* buf, size_t nbytes) {
             else
                 bytes_to_copy = bytes_left;
 
-            memcpy(&globals.fs.data_blocks[ftr.spaces[idx]], buf + idx*16, bytes_to_copy);
+            int i;
+            for(i = 0; i < bytes_to_copy; i++) {
+                globals.fs.data_blocks[ftr.spaces[idx]].data[i] = ((char*) buf)[i + idx*16];
+            }
             idx += 1;
             bytes_left -= 16;
         }
@@ -560,12 +613,20 @@ int fs_write(int filedes, void* buf, size_t nbytes) {
     } else {
         int existing_bytes = file_to_write->file_len;
         int current_offset = globals.oft.offset[filedes];
+        
         FatTableReturn_t ftr = LookupFATBlocks(&globals.fs, file_to_write);
-        int fat_space_left = file_to_write->file_len % 16;
+
+        int fat_space_taken = file_to_write->file_len % 16;
+        int fat_space_left = 16 - fat_space_taken;
         int new_space = nbytes - fat_space_left;
 
-        memcpy(&globals.fs.data_blocks[ftr.spaces[ftr.nspaces - 1]], buf, nbytes);
-        
+        int i;
+        for(i = 0; i < min_(nbytes, fat_space_left); i++) {
+            globals.fs.data_blocks[ftr.spaces[ftr.nspaces - 1]].data[i + fat_space_taken] = ((char*) buf)[i];
+        }
+
+        globals.oft.offset[filedes] += min_(nbytes, fat_space_left);
+        file_to_write->file_len += min_(nbytes, fat_space_left);
         if(nbytes > fat_space_left) {
             int nblocks = new_space / 16 + 1;
             ftr = FindFATTableSpace(&globals.fs, nblocks);
@@ -586,15 +647,169 @@ int fs_write(int filedes, void* buf, size_t nbytes) {
                 else
                     bytes_to_copy = bytes_left;
 
-                // TODO : Memcopy for existing files
-                // memcpy(&globals.fs.data_blocks[ftr.spaces[idx]], buf + idx*16 + )
-            } 
+                int i;
+                for(i = 0; i < bytes_to_copy; i++) {
+                    globals.fs.data_blocks[ftr.spaces[idx]].data[i] = ((char*) buf)[i + idx*16 + fat_space_left];
+                }
+                bytes_left -= 16;
+                idx += 1;
+            }
+            globals.oft.offset[filedes] += new_space; 
+            file_to_write->file_len += new_space;
+            return nbytes; 
         }
+    }
+    return 0;
+}
 
-
+int fs_read(int fildes, void *buf, size_t nbytes) {
+    //TODO: read w/ proper offset
+    debug_print(">>> FS_READ CALLED\n");
+    if(globals.oft.open[fildes] == 0) {
+        debug_print("\tFile %d is not open!\n", fildes);
+        return -1;
     }
 
-    return 0;
+
+    DirectoryBlock_t* file_to_read = LookupFD(&globals.oft, fildes);
+    FatTableReturn_t ftr = LookupFATBlocks(&globals.fs, file_to_read);
+
+    int i;
+    int bytes_read = 0;
+
+    if(globals.oft.offset[fildes] >= file_to_read->file_len) {
+        debug_print("\tFile pointer is at end of file\n");
+        return 0;
+    } 
+    if(nbytes + globals.oft.offset[fildes] > file_to_read->file_len) {
+        nbytes = file_to_read->file_len - globals.oft.offset[fildes];
+        debug_print("\tLength past offset, shortening to %d bytes",(int) nbytes);
+    } else if(nbytes > file_to_read->file_len){
+        debug_print("\tLength to read to long, shortening to %d bytes\n", file_to_read->file_len);
+        nbytes = file_to_read->file_len;
+    }
+
+    int blocks_to_skip = globals.oft.offset[fildes] / 16;
+    int bytes_to_skip = globals.oft.offset[fildes] % 16;
+
+    int bytes_left = nbytes;
+
+    int bytecount = 0;
+    int first = 1;
+    int os = 0;
+
+    for(i = 0; i < ftr.nspaces; i++) {
+        int k;
+        int block_to_read = ftr.spaces[i];
+        char* blkpointer = (char *) &globals.fs.data_blocks[block_to_read];
+
+        for( k = 0 ; k < 16; k++) {
+            bytecount += 1;
+            if(bytecount > bytes_to_skip && bytes_left > 0) {
+                ((char*) buf)[os] = blkpointer[k];
+                os += 1;
+                bytes_left -= 1;
+                bytes_read += 1;
+            }
+        }
+    }
+    globals.oft.offset[fildes] += bytes_read;
+    return bytes_read;
 
 }
 
+int fs_get_filesize(int fildes) {
+    debug_print(">>> FS_GET_FILESIZE CALLED\n");
+    if(fildes < 0 || fildes > 3)
+        return -1;
+    if(globals.oft.open[fildes] == 0) {
+        debug_print("\tFile %d is not open!\n", fildes);
+        return -1;
+    }
+    DirectoryBlock_t* file_to_size = LookupFD(&globals.oft, fildes);
+    return file_to_size->file_len;
+}
+
+int fs_lseek(int fildes, off_t offset) {
+    debug_print(">>> FS_LSEEK CALLED\n");
+    if(globals.oft.open[fildes] == 0) {
+        debug_print("\tFile %d is not open!\n", fildes);
+        return -1;
+    }
+
+    int current_offset = globals.oft.offset[fildes];
+    DirectoryBlock_t* current_file = LookupFD(&globals.oft, fildes);
+
+    int new_os = current_offset + (int) offset;
+    
+    if(new_os < 0){
+        debug_print("Error: offset %d is negative\n", new_os);
+        return -1;
+    }
+    if(new_os > current_file->file_len){
+        debug_print("Error: offset %d is too large for file size\n", new_os);
+        return -1;
+    }
+
+    globals.oft.offset[fildes] = new_os;
+    return 0;
+}
+
+int CalculateBlocksToShorten(int old_len, int new_len) {
+    int count = 0;
+    int i;
+    for(i = old_len; i > 0; i--) {
+        if(i%16 == 0)
+            count++;
+    }
+    return count;
+}
+
+int fs_truncate(int fildes, off_t length) {
+    debug_print(">>> FS_TRUNCATE CALLED\n");
+    if(globals.oft.open[fildes] == 0) {
+        debug_print("\tFile %d is not open!\n", fildes);
+        return -1;
+    }
+    if(length < 0) {
+        debug_print("\tCannot shorted file by a negative number\n");
+        return -1;
+    }
+
+    DirectoryBlock_t* file_to_trunc = LookupFD(&globals.oft, fildes);
+    FatTableReturn_t ftr = LookupFATBlocks(&globals.fs, file_to_trunc);
+    
+    int flen_current = file_to_trunc->file_len; 
+    int len_to_shorten = flen_current - length;
+
+    int hanging_bytes = flen_current % 16;
+
+    globals.oft.offset[fildes] = 0;
+    if(hanging_bytes > len_to_shorten) {
+        file_to_trunc->file_len -= length;
+        globals.oft.offset[fildes] = 0;
+        return 0;
+    } else if(length == 0) {
+        file_to_trunc->file_len = 0;
+        int i;
+        for(i = 0; i < ftr.nspaces; i++) {
+            FATBlock_t* fb = &globals.fs.fat_blocks[ftr.spaces[i]];
+            fb->is_used = 0;
+        }
+        globals.oft.offset[fildes] = 0;
+        return 0;
+    } else {
+        int n_del_blocks = CalculateBlocksToShorten(flen_current, length);
+        int i;
+        for(i = ftr.nspaces - 1; i >= ftr.nspaces - n_del_blocks; i--) {
+            FATBlock_t* fb = &globals.fs.fat_blocks[ftr.spaces[i]];
+            fb->is_used = 0;
+        }
+        file_to_trunc->file_len = length;
+        globals.oft.offset[fildes] = 0;
+        return 0;
+    }
+    return -1;
+}
+
+/*=====  End of Core Functionality  ======*/

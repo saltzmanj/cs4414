@@ -3,7 +3,7 @@
 # CS4414 - Spring 2017
 
 CC = gcc
-CFLAGS = -g -Wall -std=c99
+CFLAGS = -g -Wall -std=c99 -Wno-unused-variable 
 
 BIN_NAME = fs
 
