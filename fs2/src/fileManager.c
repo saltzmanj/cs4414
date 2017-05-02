@@ -71,8 +71,10 @@ void SerializeFATBlock(char* dest, FATBlock_t fblock){
 
 FATBlock_t LoadFATBlock(char* src){
     FATBlock_t fblock;
-    memcpy(&fblock.is_used, src, 1);
-    memcpy(&fblock.file_index, src+1, 2);
+    fblock.is_used = (int) src[0];
+    fblock.file_index = (int) src[1];
+    // memcpy(&fblock.is_used, src, 1);
+    // memcpy(&fblock.file_index, src+1, 2);
     return fblock;
 }
 
@@ -158,7 +160,7 @@ FileSystem_t LoadFileSystem(char* src) {
     for(i = 0; i < FAT_SIZE; i++) {
         int offset = 9*16;
         FATBlock_t fb;
-        fb = LoadFATBlock(src+offset+i*16);
+        fb = LoadFATBlock(src+offset+i*4);
         fs.fat_blocks[i] = fb;
     }
 
@@ -279,6 +281,8 @@ FatTableReturn_t LookupFATBlocks(FileSystem_t* fs, DirectoryBlock_t* file) {
 int GetFD(OFT_t* oft, DirectoryBlock_t* dptr) {
     int i;
     for(i = 0; i < OFT_SIZE; i++) {
+        if(oft->dirptr[i] == dptr && oft->open[i] == 1)
+            return -1;
         if(oft->open[i] == 0) {
             oft->open[i] = 1;
             oft->dirptr[i] = dptr;
@@ -411,6 +415,10 @@ int mount_fs(char* disk_name) {
     if(globals.isvalid == 0) {
         return -1;
     }
+    for( i = 0; i < OFT_SIZE; i++) {
+        globals.oft.open[i] = 0;
+        globals.oft.dirptr[i] = NULL;
+    }
     return 0;
 }
 
@@ -476,6 +484,7 @@ int fs_open(char* name) {
     int i;
     DirectoryBlock_t* db;
     int fflag = 0;
+
     for(i = 0; i < DIRECTORY_SIZE; i++) {
         db = &globals.fs.directory_blocks[i];
         if(strcmp(db->filename, name) == 0) {
@@ -545,6 +554,7 @@ int fs_delete(char* name) {
 
     debug_print("\tDeleting file %s...\n", name);
     dptr->is_used = 0;
+    strcpy(dptr->filename, "");
     FatTableReturn_t ftr = LookupFATBlocks(&globals.fs, dptr);
 
     for(i = 0; i < ftr.nspaces; i++) {
@@ -557,7 +567,7 @@ int fs_delete(char* name) {
 
 int fs_write(int filedes, void* buf, size_t nbytes) {
     //TODO: Support file pointer
-    debug_print(">>> FS_WRITE CALLED\n");
+    debug_print(">>> FS_WRITE CALLED on filedes %d\n", filedes);
     
     FatTableReturn_t ftr;
     if(globals.oft.open[filedes] == 0){
@@ -596,6 +606,7 @@ int fs_write(int filedes, void* buf, size_t nbytes) {
                 bytes_to_copy = bytes_left;
 
             int i;
+            debug_print("\tWriting to block %d\n", ftr.spaces[idx]);
             for(i = 0; i < bytes_to_copy; i++) {
                 globals.fs.data_blocks[ftr.spaces[idx]].data[i] = ((char*) buf)[i + idx*16];
             }
@@ -664,7 +675,7 @@ int fs_write(int filedes, void* buf, size_t nbytes) {
 
 int fs_read(int fildes, void *buf, size_t nbytes) {
     //TODO: read w/ proper offset
-    debug_print(">>> FS_READ CALLED\n");
+    debug_print(">>> FS_READ CALLED on filedes %d\n", fildes);
     if(globals.oft.open[fildes] == 0) {
         debug_print("\tFile %d is not open!\n", fildes);
         return -1;
@@ -692,8 +703,10 @@ int fs_read(int fildes, void *buf, size_t nbytes) {
     int blocks_to_skip = globals.oft.offset[fildes] / 16;
     int bytes_to_skip = globals.oft.offset[fildes] % 16;
 
-    int bytes_left = nbytes;
+    debug_print("\tSkipping %d blocks and %d bytes\n", blocks_to_skip, bytes_to_skip );
 
+    int bytes_left = nbytes;
+    int blocks = 0;
     int bytecount = 0;
     int first = 1;
     int os = 0;
@@ -701,8 +714,12 @@ int fs_read(int fildes, void *buf, size_t nbytes) {
     for(i = 0; i < ftr.nspaces; i++) {
         int k;
         int block_to_read = ftr.spaces[i];
+        debug_print("\tReading from block %d\n", block_to_read);
         char* blkpointer = (char *) &globals.fs.data_blocks[block_to_read];
-
+        if(blocks < blocks_to_skip){
+            blocks++;
+            continue;
+        }
         for( k = 0 ; k < 16; k++) {
             bytecount += 1;
             if(bytecount > bytes_to_skip && bytes_left > 0) {
@@ -786,7 +803,7 @@ int fs_truncate(int fildes, off_t length) {
 
     globals.oft.offset[fildes] = 0;
     if(hanging_bytes > len_to_shorten) {
-        file_to_trunc->file_len -= length;
+        file_to_trunc->file_len -= len_to_shorten;
         globals.oft.offset[fildes] = 0;
         return 0;
     } else if(length == 0) {

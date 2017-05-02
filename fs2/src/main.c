@@ -429,8 +429,100 @@ void TestDeleteComplex() {
 
 }
 
+void ReproduceTestError() {
+    make_fs("mydk");
+    mount_fs("mydk");
+    int status;
+    status = fs_create("fa");
+    int fda = fs_open("fa");
+    // status = fs_open("fa");
+
+    int nbyte;
+    int total;
+
+    nbyte = 9;
+    char bufa[] = "Hi, there";
+    status = fs_write(fda, bufa, nbyte);
+    
+    status = fs_create("fb");
+    int fdb = fs_open("fb");
+
+    char bufb[] = "The goal of this project";
+    nbyte = 24;
+    total = fs_write(fdb, bufb, nbyte);
+
+    // (1)
+    status = fs_create("fc");
+
+    int fdc = fs_open("fc");
+
+    char bufc[] = "CS4414 is fun";
+    nbyte = 13;
+    total = fs_write(fdc, bufc, nbyte);
+
+    status = fs_create("fd");
+    int fdd = fs_open("fd");
+
+    char bufd[] = "I love computer programming because I can ask computers to do something for me";
+    nbyte = 78;
+    total = fs_write(fdd,bufd,nbyte);
+
+    status = fs_create("fe");
+    int fde = fs_open("fe");
+
+    int offset = -22;
+    fs_lseek(fdd, offset);
+
+    FileSystemOFTLS();
+
+    char rbuf[16];
+    rbuf[15] = '\0';
+
+    nbyte = 15;
+    fs_read(fdd, rbuf, nbyte);
+    printf("Read D/1: %s\n", rbuf);
+
+
+    int c_nl = 9;
+    fs_truncate(fdc, c_nl);
+    FileSystemLS();
+
+    fs_close(fda);
+    fs_close(fdb);
+    fs_close(fdc);
+    fs_close(fdd);
+
+    FileSystemOFTLS();
+    FileSystemLS();
+    fda = fs_open("fa");
+    fdb = fs_open("fb");
+    fdc = fs_open("fc");
+    fdd = fs_open("fd");
+
+
+    char target[79];
+    target[9] = '\0';
+    fs_read(fda, target, 9);
+    printf("Read A: %s\n", target);
+
+    target[24] = '\0';
+    fs_read(fdb, target, 24);
+    printf("Read B: %s\n", target);
+
+    target[13] = '\0';
+    fs_read(fdc, target, 13);
+    printf("Read C: %s\n", target);
+
+    target[78] = '\0';
+    fs_read(fdd, target, 78);
+    printf("Read D: %s\n", target);
+
+
+
+}
+
 int main() {
-	TestDeleteComplex();
+	ReproduceTestError();
 
 	return 0;
 }
